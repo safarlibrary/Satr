@@ -1,0 +1,239 @@
+# React Bits catalog (215 components) — name — npm deps
+
+Path on GitHub: `src/<variant>/<Category>/<Name>/`. Variants: `tailwind` (JS+TW), `content` (JS+CSS), `ts-tailwind`, `ts-default`.
+
+## TextAnimations
+
+- `ASCIIText` — no deps
+- `BlurText` — motion
+- `CircularText` — motion
+- `CountUp` — motion
+- `CurvedLoop` — no deps
+- `DecryptedText` — motion
+- `DepthText` — no deps
+- `EchoText` — no deps
+- `FallingText` — matter-js
+- `FoldText` — gsap
+- `FuzzyText` — no deps
+- `GlitchText` — no deps
+- `GradientText` — no deps
+- `MaskedHeading` — gsap
+- `ParticleText` — no deps
+- `RotatingText` — motion
+- `ScrambledText` — gsap
+- `ScrollFloat` — gsap
+- `ScrollReveal` — gsap
+- `ScrollVelocity` — motion
+- `ShinyText` — no deps
+- `Shuffle` — @gsap/react, gsap
+- `SplitFlapText` — no deps
+- `SplitText` — @gsap/react, gsap
+- `StrokeText` — gsap
+- `TechText` — no deps
+- `TextCursor` — no deps
+- `TextLoop` — gsap
+- `TextPressure` — no deps
+- `TextType` — gsap
+- `TrueFocus` — motion
+- `VariableProximity` — no deps
+- `WarpText` — ogl
+
+## Animations
+
+- `AnimatedContent` — gsap
+- `BlobCursor` — three
+- `ClickSpark` — no deps
+- `Crosshair` — no deps
+- `CrystalizedBall` — ogl
+- `Cubes` — no deps
+- `CursorGrid` — no deps
+- `DitherVeil` — ogl
+- `ElasticMesh` — no deps
+- `ElectricBorder` — no deps
+- `ElectricLogo` — ogl
+- `FadeContent` — gsap
+- `GhostCursor` — no deps
+- `GlareHover` — no deps
+- `GlowCursor` — no deps
+- `GradualBlur` — no deps
+- `HalftoneReveal` — no deps
+- `ImageTrail` — gsap
+- `LaserFlow` — no deps
+- `LogoLoop` — no deps
+- `Magnet` — no deps
+- `MetaBalls` — no deps
+- `MetallicPaint` — no deps
+- `NeonLogo` — no deps
+- `Noise` — no deps
+- `OrbitImages` — no deps
+- `PixelSwap` — no deps
+- `PixelTrail` — no deps
+- `PixelTransition` — no deps
+- `Ribbons` — no deps
+- `RippleDistortion` — ogl
+- `ScrollExpand` — no deps
+- `ShapeBlur` — no deps
+- `SplashCursor` — no deps
+- `StarBorder` — no deps
+- `StickerPeel` — no deps
+- `Strands` — no deps
+- `SwarmCursor` — no deps
+- `TargetCursor` — no deps
+
+## Backgrounds
+
+- `AcidSquares` — no deps
+- `AeroShards` — vgpu
+- `Antigravity` — no deps
+- `Aurora` — no deps
+- `Balatro` — no deps
+- `Ballpit` — no deps
+- `Beams` — no deps
+- `CRTWarp` — no deps
+- `ColorBends` — three
+- `DarkVeil` — no deps
+- `Dither` — no deps
+- `DotField` — no deps
+- `DotGrid` — no deps
+- `EvilEye` — ogl
+- `FaultyTerminal` — no deps
+- `Ferrofluid` — no deps
+- `FloatingLines` — no deps
+- `FluxLines` — no deps
+- `Galaxy` — no deps
+- `GhostFibers` — no deps
+- `GradientASCII` — no deps
+- `GradientBlinds` — no deps
+- `GradientWaves` — no deps
+- `Grainient` — no deps
+- `GridDistortion` — no deps
+- `GridMotion` — no deps
+- `GridScan` — no deps
+- `HoloMosaic` — no deps
+- `Hyperspeed` — three
+- `Iridescence` — no deps
+- `LetterGlitch` — no deps
+- `LightPillar` — no deps
+- `LightRays` — no deps
+- `LightTunnel` — no deps
+- `Lightfall` — no deps
+- `Lightning` — no deps
+- `LineWaves` — no deps
+- `LiquidChrome` — no deps
+- `LiquidEther` — no deps
+- `MagicRings` — no deps
+- `MagnetLines` — no deps
+- `MicroSlats` — ogl
+- `MoltenMetal` — no deps
+- `NeonGlyphs` — no deps
+- `Orb` — no deps
+- `Particles` — no deps
+- `PatternWaves` — ogl
+- `PixelBlast` — no deps
+- `PixelSnow` — no deps
+- `Plasma` — no deps
+- `PlasmaWave` — no deps
+- `Prism` — no deps
+- `PrismaticBurst` — no deps
+- `Radar` — no deps
+- `RippleGrid` — no deps
+- `Scanner` — no deps
+- `ShapeGrid` — no deps
+- `ShapeWaves` — vgpu
+- `SideRays` — no deps
+- `Silk` — no deps
+- `SlicedWaves` — no deps
+- `SoftAurora` — no deps
+- `Threads` — no deps
+- `Topography` — no deps
+- `Waves` — no deps
+- `WebThreads` — no deps
+
+## Components
+
+- `AccordionGallery` — gsap
+- `AnimatedList` — @hugeicons/core-free-icons, @hugeicons/react
+- `BorderGlow` — no deps
+- `BounceCards` — no deps
+- `BubbleMenu` — gsap
+- `CardNav` — @hugeicons/core-free-icons, @hugeicons/react
+- `CardSwap` — @hugeicons/core-free-icons, @hugeicons/react
+- `Carousel` — @hugeicons/core-free-icons, @hugeicons/react
+- `ChromaGrid` — no deps
+- `CircularCarousel` — no deps
+- `CircularGallery` — no deps
+- `Counter` — no deps
+- `CurvedInput` — no deps
+- `DecayCard` — no deps
+- `DepthCarousel` — gsap
+- `Dock` — no deps
+- `DomeGallery` — @use-gesture/react
+- `DriftWall` — no deps
+- `ElasticSlider` — @hugeicons/core-free-icons, @hugeicons/react
+- `FlexCarousel` — ogl
+- `FlowingMenu` — @hugeicons/core-free-icons, @hugeicons/react
+- `FluidGlass` — no deps
+- `FlyingPosters` — no deps
+- `Folder` — no deps
+- `GlassIcons` — no deps
+- `GlassSurface` — no deps
+- `GooeyNav` — no deps
+- `HoloCard` — no deps
+- `InfiniteMenu` — no deps
+- `InfiniteSpiral` — no deps
+- `Lanyard` — three
+- `LineSidebar` — no deps
+- `MagicBento` — @hugeicons/core-free-icons, @hugeicons/react
+- `Masonry` — @hugeicons/core-free-icons, @hugeicons/react
+- `ModelViewer` — @react-three/drei, @react-three/fiber, three
+- `MorphSlider` — gsap, ogl
+- `OptionWheel` — no deps
+- `PillNav` — no deps
+- `PixelCard` — no deps
+- `ProfileCard` — @hugeicons/core-free-icons, @hugeicons/react
+- `ReflectiveCard` — @hugeicons/core-free-icons, @hugeicons/react
+- `ScrollStack` — no deps
+- `SpecularButton` — no deps
+- `SpotlightCard` — no deps
+- `Stack` — motion
+- `StaggeredMenu` — gsap
+- `Stepper` — @hugeicons/core-free-icons, @hugeicons/react
+- `TiltedCard` — no deps
+
+## Micro
+
+- `BellToggle` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `BranchedMenu` — @hugeicons/core-free-icons, @hugeicons/react
+- `CallChip` — @hugeicons/core-free-icons, @hugeicons/react
+- `CodeSlots` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `CometDial` — motion
+- `DodgeField` — motion
+- `FlipCard` — motion
+- `FlyingButton` — no deps
+- `FolderFloat` — matter-js
+- `FuseButton` — @hugeicons/core-free-icons, @hugeicons/react
+- `GlideSelect` — @hugeicons/core-free-icons, @hugeicons/react
+- `HoldButton` — no deps
+- `JellyRadio` — motion
+- `LatticeLoader` — no deps
+- `PaperCrumple` — three
+- `PeekRating` — @hugeicons/core-free-icons, @hugeicons/react
+- `PromptBar` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `PulseHeart` — @hugeicons/core-free-icons
+- `RefineFrame` — @hugeicons/core-free-icons, @hugeicons/react
+- `RubberSegment` — motion
+- `ScrubField` — motion
+- `Shredder` — no deps
+- `SlideCommit` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `SlingButton` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `SloshGauge` — no deps
+- `SpringCheck` — @hugeicons/core-free-icons, motion
+- `SquishSwitch` — motion
+- `StatusMark` — motion
+- `SwipeRow` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `SwipeToast` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `TearTicket` — motion
+- `ThoughtLine` — @hugeicons/core-free-icons, @hugeicons/react, motion
+- `VoicePill` — @hugeicons/core-free-icons, @hugeicons/react
+- `WakeSlider` — motion
+- `WarmTooltip` — motion
