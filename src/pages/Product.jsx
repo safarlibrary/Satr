@@ -39,7 +39,9 @@ export function ProductPage({ id: c }) {
     return <NotFoundPage />;
   }
   const z = E.colors ?? [];
-  const Q = y && z.includes(y) ? y : z[0];
+  // الألوان اللي خلصت ما تنختار
+  const inStock = (w) => E.colorStock?.[w] === undefined || E.colorStock[w] > 0;
+  const Q = y && z.includes(y) && inStock(y) ? y : z.find(inStock);
   const Z = z.length > 0 && !Q;
   const O = o.find((w) => w.id === E.category);
   const C = r
@@ -63,7 +65,7 @@ export function ProductPage({ id: c }) {
         >
           <WavyFrame />
           <div className="absolute inset-[9%]">
-            <ProductArt product={E} />
+            <ProductArt product={E} color={Q} />
           </div>
         </div>
         <div>
@@ -106,11 +108,13 @@ export function ProductPage({ id: c }) {
                   <button
                     key={w}
                     type="button"
-                    className="chip !min-h-11"
+                    className="chip !min-h-11 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-pressed={Q === w}
+                    disabled={!inStock(w)}
                     onClick={() => h(w)}
                   >
                     {w}
+                    {!inStock(w) && " · خلص"}
                   </button>
                 ))}
               </div>

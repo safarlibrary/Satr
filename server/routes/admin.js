@@ -50,7 +50,7 @@ adminRouter.post("/devices/:id/revoke", (req, res) => {
 });
 
 const STATUSES = ["new", "preparing", "shipped", "delivered", "cancelled"];
-const ARTS = ["pencil", "notebook", "backpack", "ruler", "crayons", "eraser", "scissors", "pencilcase", "highlighter", "glue", "sharpener", "geometry"];
+const ARTS = ["pencil", "notebook", "backpack", "ruler", "crayons", "eraser", "scissors", "pencilcase", "highlighter", "glue", "sharpener", "geometry", "tote", "sticky", "calendar"];
 const BADGES = ["جديد", "خصم", "الأكثر طلبًا"];
 
 adminRouter.get("/status", (req, res) => res.json({ onlinePayment: publicConfig().onlinePayment }));
@@ -98,11 +98,11 @@ adminRouter.patch("/orders/:id", (req, res) => {
     changes.status = status;
     // الإلغاء يرجّع الكميات للمخزون، والرجوع عن الإلغاء يحجزها من جديد
     if (status === "cancelled" && !order.stockReleased) {
-      for (const item of order.items) changeStock(item.id, item.qty);
+      for (const item of order.items) changeStock(item.id, item.qty, item.color);
       changes.stockReleased = true;
     }
     if (status !== "cancelled" && order.stockReleased) {
-      for (const item of order.items) changeStock(item.id, -item.qty);
+      for (const item of order.items) changeStock(item.id, -item.qty, item.color);
       changes.stockReleased = false;
     }
   }
@@ -162,7 +162,10 @@ adminRouter.post("/products", (req, res) => {
 adminRouter.put("/products/:id", (req, res) => {
   const existing = getProduct(req.params.id);
   if (!existing) fail(404, "المنتج غير موجود");
-  res.json(updateProduct(existing.id, cleanProduct(req.body ?? {}, { id: existing.id, stockFallback: existing.stock })));
+  const clean = cleanProduct(req.body ?? {}, { id: existing.id, stockFallback: existing.stock });
+  // صور وكميات الألوان ما تتعدّل من النموذج، نحتفظ فيها للألوان اللي ما زالت موجودة
+  const keep = (map) => (map ? Object.fromEntries(Object.entries(map).filter(([c]) => clean.colors.includes(c))) : undefined);
+  res.json(updateProduct(existing.id, { ...clean, colorImages: keep(existing.colorImages), colorStock: keep(existing.colorStock) }));
 });
 
 adminRouter.post("/products/:id/active", (req, res) => {

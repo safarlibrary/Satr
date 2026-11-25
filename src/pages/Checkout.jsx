@@ -241,7 +241,7 @@ export function CheckoutPage() {
                     background: J.product.tint,
                   }}
                 >
-                  <ProductArt product={J.product} className="w-9 h-9" />
+                  <ProductArt product={J.product} color={J.color} className="w-9 h-9" />
                 </span>
                 <span className="flex-1 text-[15px] font-bold leading-snug">
                   {J.product.name}

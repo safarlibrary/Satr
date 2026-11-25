@@ -99,7 +99,7 @@ export const listProducts = ({ includeHidden = false } = {}) =>
 
 export const getProduct = (id) => rowToProduct(db.prepare("SELECT * FROM products WHERE id = ?").get(id));
 
-const PRODUCT_FIELDS = ["name", "category", "price", "oldPrice", "art", "tint", "badge", "description", "details", "brand", "madeIn", "colors"];
+const PRODUCT_FIELDS = ["name", "category", "price", "oldPrice", "art", "tint", "badge", "description", "details", "brand", "madeIn", "colors", "colorImages", "colorStock"];
 const productData = (product) => JSON.stringify(Object.fromEntries(PRODUCT_FIELDS.filter((k) => product[k] !== undefined).map((k) => [k, product[k]])));
 
 export function insertProduct(product) {
@@ -117,11 +117,20 @@ export function updateProduct(id, product) {
 
 export const setProductActive = (id, active) => db.prepare("UPDATE products SET active = ? WHERE id = ?").run(active ? 1 : 0, id);
 export const setProductImage = (id, image) => db.prepare("UPDATE products SET image = ? WHERE id = ?").run(image, id);
-export const changeStock = (id, delta) => db.prepare("UPDATE products SET stock = MAX(stock + ?, 0) WHERE id = ?").run(delta, id);
+// يغيّر المخزون الكلي، ومخزون اللون نفسه إذا المنتج له كمية لكل لون
+export function changeStock(id, delta, color) {
+  db.prepare("UPDATE products SET stock = MAX(stock + ?, 0) WHERE id = ?").run(delta, id);
+  if (!color) return;
+  const row = db.prepare("SELECT data FROM products WHERE id = ?").get(id);
+  const data = row && JSON.parse(row.data);
+  if (!data?.colorStock || data.colorStock[color] === undefined) return;
+  data.colorStock[color] = Math.max(0, data.colorStock[color] + delta);
+  db.prepare("UPDATE products SET data = ? WHERE id = ?").run(JSON.stringify(data), id);
+}
 
 // أول تشغيل: نعبّي المنتجات التجريبية
 if (db.prepare("SELECT COUNT(*) AS n FROM products").get().n === 0) {
-  for (const product of SEED_PRODUCTS) insertProduct({ ...product, stock: 25, active: true });
+  for (const product of SEED_PRODUCTS) insertProduct({ ...product, stock: product.stock ?? 25, active: true });
 }
 
 // ───────── الطلبات ─────────

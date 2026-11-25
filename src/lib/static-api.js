@@ -28,7 +28,7 @@ function previewIntegrations() {
   });
 }
 
-const PRODUCTS_KEY = "satr-preview-products";
+const PRODUCTS_KEY = "satr-preview-products-v2";
 
 const ORDERS_KEY = "satr-preview-orders";
 
@@ -63,7 +63,7 @@ function getProducts() {
   }
   const r = SEED_PRODUCTS.map((o) => ({
     ...o,
-    stock: 25,
+    stock: o.stock ?? 25,
     active: true,
   }));
   writeJson(PRODUCTS_KEY, r);

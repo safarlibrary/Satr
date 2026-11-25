@@ -15,6 +15,9 @@ const ART_KINDS = [
   "glue",
   "sharpener",
   "geometry",
+  "tote",
+  "sticky",
+  "calendar",
 ];
 
 const TINTS = [

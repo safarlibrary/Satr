@@ -159,7 +159,7 @@ export function CartDrawer() {
                       background: y.product.tint,
                     }}
                   >
-                    <ProductArt product={y.product} className="w-14 h-14" />
+                    <ProductArt product={y.product} color={y.color} className="w-14 h-14" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="m-0 font-bold leading-snug">

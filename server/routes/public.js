@@ -80,6 +80,13 @@ publicRouter.post(
       const product = getProduct(id);
       if (product.stock < qty) fail(409, `الكمية المطلوبة من «${product.name}» أكثر من المتوفر (${product.stock}).`);
     }
+    // المنتجات اللي لها كمية لكل لون
+    for (const item of items) {
+      const product = getProduct(item.id);
+      const left = item.color ? product.colorStock?.[item.color] : undefined;
+      const sameColor = items.filter((i) => i.id === item.id && i.color === item.color).reduce((s, i) => s + i.qty, 0);
+      if (left !== undefined && left < sameColor) fail(409, `اللون ${item.color} من «${product.name}» المتوفر منه ${left} بس.`);
+    }
 
     const settings = getSettings();
     const subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0);
@@ -96,7 +103,7 @@ publicRouter.post(
       total: subtotal + shipping,
     });
     // نحجز الكمية من المخزون مباشرة
-    for (const [id, qty] of needed) changeStock(id, -qty);
+    for (const item of items) changeStock(item.id, -item.qty, item.color);
 
     let paymentUrl = null;
     const base = baseUrl(req);
@@ -122,7 +129,7 @@ publicRouter.post(
     } catch (error) {
       // فشل إنشاء الدفع: نلغي الطلب ونرجّع المخزون
       updateOrder(order.id, { status: "cancelled", stockReleased: true });
-      for (const [id, qty] of needed) changeStock(id, qty);
+      for (const item of items) changeStock(item.id, item.qty, item.color);
       console.error(`[payment] ${order.number}: ${error.message}`);
       fail(502, payment === "tabby" && !/^\d{3} /.test(error.message) ? error.message : "ما قدرنا نفتح صفحة الدفع، جرّب مرة ثانية أو اختر الدفع عند الاستلام.");
     }

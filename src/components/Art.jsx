@@ -254,6 +254,34 @@ const ART = {
       <path d="M24 76h72" {...stroke} />
     </g>
   ),
+  tote: (
+    <g>
+      <path d="M44 44c0-20 32-20 32 0" fill="none" {...stroke} strokeWidth={4} />
+      <path d="M22 42h76l-6 60a6 6 0 01-6 6H34a6 6 0 01-6-6z" fill="#f7c6cf" {...stroke} />
+      <path d="M40 66h40" {...stroke} strokeWidth={2.5} />
+      <rect x="50" y="74" width="20" height="16" rx="4" fill="#fffdf8" {...stroke} strokeWidth={2.5} />
+    </g>
+  ),
+  sticky: (
+    <g>
+      <rect x="22" y="30" width="62" height="62" rx="4" fill="#cbe4da" {...stroke} transform="rotate(-8 53 61)" />
+      <path d="M38 28h62v52L86 94H38z" fill="#fdecaa" {...stroke} />
+      <path d="M86 94V80h14" fill="#f5d9b8" {...stroke} />
+      <path d="M50 48h36M50 60h30M50 72h22" {...stroke} strokeWidth={2.5} />
+    </g>
+  ),
+  calendar: (
+    <g>
+      <rect x="20" y="28" width="80" height="72" rx="10" fill="#fffdf8" {...stroke} />
+      <path d="M20 38a10 10 0 0110-10h60a10 10 0 0110 10v12H20z" fill="#f198aa" {...stroke} />
+      <path d="M40 20v16M80 20v16" {...stroke} strokeWidth={4} />
+      {[0, 1, 2].map((r) =>
+        [0, 1, 2, 3].map((c) => (
+          <rect key={`${r}-${c}`} x={31 + c * 16} y={58 + r * 13} width="9" height="7" rx="2" fill={r === 1 && c === 2 ? "#8fc7b2" : "#dccef4"} />
+        )),
+      )}
+    </g>
+  ),
   geometry: (
     <g>
       <path d="M18 98h70L18 28z" fill="#cbe4da" {...stroke} />
@@ -274,8 +302,9 @@ const ART = {
   ),
 };
 
-export function ProductArt({ product: c, className: r }) {
-  const o = resolveProductImage(c.image);
+export function ProductArt({ product: c, className: r, color }) {
+  // صورة اللون المختار إن وجدت، وإلا الصورة الأساسية
+  const o = resolveProductImage((color && c.colorImages?.[color]) || c.image);
   if (o) {
     return (
       <img
