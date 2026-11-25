@@ -106,7 +106,7 @@ export const SEED_PRODUCTS = [
     art: "tote",
     tint: "var(--color-butter)",
     description:
-      "شنطة شتوية بقماش مضلّع ناعم وجيوب جانبية، مقاسها يشيل كتب ودفاتر A4.",
+      "شنطة شتوية بقماش مضلّع ناعم وجيوب جانبية، مقاسها يشيل الكتب والدفاتر الكبيرة.",
     details: ["قماش مضلّع ناعم", "جيوب جانبية", "٤ ألوان"],
     colors: ["أصفر", "أسود", "أخضر", "أبيض سكري"],
     colorImages: {
@@ -154,7 +154,7 @@ export const SEED_PRODUCTS = [
   },
   {
     id: "backpack-new-trend",
-    name: "شنطة ظهر New Trend",
+    name: "شنطة ظهر ترند",
     category: "bags",
     price: 89,
     art: "backpack",

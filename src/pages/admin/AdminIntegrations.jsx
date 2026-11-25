@@ -57,12 +57,12 @@ export function AdminIntegrations({ token }) {
           </h2>
           <ol className="m-0 ps-5 list-decimal grid gap-2 text-[16px]">
             <li>اربط الدومين واكتب رابط الموقع في الإعدادات.</li>
-            <li>اضبط البريد: SMTP، أو وثّق الدومين في Resend وأضف سجلات DNS.</li>
-            <li>أضف مفاتيح ميسّر في وضع Test وجرّب طلب كامل.</li>
+            <li>اضبط البريد من حسابك، أو وثّق الدومين في ريسند وأضف سجلات الدومين.</li>
+            <li>أضف مفاتيح ميسّر في الوضع التجريبي وجرّب طلب كامل.</li>
             <li>
-              ارفع ملف Apple Pay (يُعرض على <code dir="ltr">/.well-known/</code>).
+              ارفع ملف تحقق أبل باي (يُعرض على <code dir="ltr">/.well-known/</code>).
             </li>
-            <li>اختبر، وبعدها بدّل ميسّر إلى Live.</li>
+            <li>اختبر، وبعدها بدّل ميسّر للوضع الحقيقي.</li>
           </ol>
         </section>
       </div>
@@ -87,7 +87,7 @@ export function AdminIntegrations({ token }) {
                     integration.key === "feed" ? (
                       <CopyLine label="رابط ملف المنتجات" value={data.feedUrl} />
                     ) : integration.key === "moyasar" ? (
-                      <CopyLine label="رابط الـ Webhook (حطه في لوحة ميسّر ← Webhooks مع نفس الـ Webhook Secret)" value={data.callbackUrl} />
+                      <CopyLine label="رابط الإشعارات — حطه في لوحة ميسّر ← Webhooks مع نفس سر الإشعارات" value={data.callbackUrl} />
                     ) : null
                   }
                 />
@@ -216,7 +216,7 @@ function IntegrationCard({ integration, token, open, onToggle, onSaved, extra })
                 {newSection && (
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 mt-2 pt-3 border-t-2 border-dashed border-ink/15">
                     <h4 className="m-0 text-[17px] font-extrabold">
-                      {field.section === "live" ? "الربط للبيئة الفعلية (Live)" : "الربط للبيئة التجريبية (Test)"}
+                      {field.section === "live" ? "مفاتيح الدفع الحقيقي (Live)" : "مفاتيح الدفع التجريبي (Test)"}
                     </h4>
                     <span className="tag !text-[12px]" style={{ background: values.mode === field.section ? "var(--color-mint)" : "var(--color-card)" }}>
                       {values.mode === field.section ? "مفعّلة الآن" : "غير مفعّلة"}

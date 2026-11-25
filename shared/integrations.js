@@ -23,16 +23,16 @@ export const INTEGRATION_DEFINITIONS = [
         type: "select",
         default: "test",
         options: [
-          ["test", "Test — دفع تجريبي"],
-          ["live", "Live — دفع حقيقي"],
+          ["test", "تجريبي (Test)"],
+          ["live", "حقيقي (Live)"],
         ],
       },
-      { section: "live", name: "livePublishableKey", label: "Live Publishable Key", type: "secret", placeholder: "pk_live_…" },
-      { section: "live", name: "liveSecretKey", label: "Live Secret Key", type: "secret", placeholder: "sk_live_…" },
-      { section: "live", name: "liveWebhookSecret", label: "Live Webhook Secret", type: "secret", help: "نفس القيمة اللي تكتبها في لوحة ميسّر ← Webhooks" },
-      { section: "test", name: "testPublishableKey", label: "Test Publishable Key", type: "secret", placeholder: "pk_test_…" },
-      { section: "test", name: "testSecretKey", label: "Test Secret Key", type: "secret", placeholder: "sk_test_…" },
-      { section: "test", name: "testWebhookSecret", label: "Test Webhook Secret", type: "secret" },
+      { section: "live", name: "livePublishableKey", label: "المفتاح العام — حقيقي (Publishable Key)", type: "secret", placeholder: "pk_live_…" },
+      { section: "live", name: "liveSecretKey", label: "المفتاح السري — حقيقي (Secret Key)", type: "secret", placeholder: "sk_live_…" },
+      { section: "live", name: "liveWebhookSecret", label: "سر الإشعارات — حقيقي (Webhook Secret)", type: "secret", help: "نفس القيمة اللي تكتبها في لوحة ميسّر ← Webhooks" },
+      { section: "test", name: "testPublishableKey", label: "المفتاح العام — تجريبي (Publishable Key)", type: "secret", placeholder: "pk_test_…" },
+      { section: "test", name: "testSecretKey", label: "المفتاح السري — تجريبي (Secret Key)", type: "secret", placeholder: "sk_test_…" },
+      { section: "test", name: "testWebhookSecret", label: "سر الإشعارات — تجريبي (Webhook Secret)", type: "secret" },
     ],
     // الجاهزية حسب الوضع المختار: نحتاج المفتاح السري لنفس الوضع
     isReady: (v) => Boolean(v.mode === "live" ? v.liveSecretKey : v.testSecretKey),
@@ -45,12 +45,12 @@ export const INTEGRATION_DEFINITIONS = [
   {
     key: "applepay",
     group: "payments",
-    name: "Apple Pay و DNS",
+    name: "أبل باي وسجلات الدومين",
     description: "بعد ربط الدومين، سجّله في لوحة ميسّر ← Apple Pay، وحط محتوى ملف التحقق هنا. نعرضه تلقائيًا على /.well-known/apple-developer-merchantid-domain-association. سجلات DNS هنا للمرجع فقط، إضافتها الفعلية تكون في لوحة شركة الدومين.",
     docs: "https://docs.moyasar.com",
     fields: [
-      { name: "association", label: "ملف Apple Pay association", type: "textarea", placeholder: "الصق محتوى ملف apple-developer-merchantid-domain-association", required: true },
-      { name: "dnsRecords", label: "سجلات DNS (للمرجع) — SPF / DKIM / DMARC / MX", type: "textarea", placeholder: 'TXT @ "v=spf1 …"\nCNAME resend._domainkey …' },
+      { name: "association", label: "ملف تحقق أبل باي (association)", type: "textarea", placeholder: "الصق محتوى ملف apple-developer-merchantid-domain-association", required: true },
+      { name: "dnsRecords", label: "سجلات الدومين للمرجع (DNS)", type: "textarea", placeholder: 'TXT @ "v=spf1 …"\nCNAME resend._domainkey …' },
     ],
   },
   {
@@ -60,7 +60,7 @@ export const INTEGRATION_DEFINITIONS = [
     description: "اشترِ الحين وادفع على ٤ دفعات بدون فوائد. يظهر كخيار دفع إضافي في صفحة إتمام الطلب.",
     docs: "https://merchant.tabby.ai",
     fields: [
-      { name: "secretKey", label: "المفتاح السري (Secret key)", type: "secret", placeholder: "sk_test_…", required: true },
+      { name: "secretKey", label: "المفتاح السري (Secret Key)", type: "secret", placeholder: "sk_test_…", required: true },
       { name: "merchantCode", label: "رمز التاجر (Merchant code)", type: "text", placeholder: "مثلاً: satr", required: true },
     ],
   },
@@ -104,13 +104,13 @@ export const INTEGRATION_DEFINITIONS = [
   {
     key: "smtp",
     group: "notifications",
-    name: "البريد — SMTP (حساب بريدك)",
+    name: "البريد من حسابك (SMTP)",
     description: "يرسل تنبيهات الطلبات من بريدك نفسه (Gmail أو Outlook أو بريد الدومين). إذا شغّلته، يُستخدم بدل Resend.",
     fields: [
-      { name: "host", label: "SMTP Host", type: "text", placeholder: "smtp.gmail.com", required: true },
+      { name: "host", label: "خادم البريد (Host)", type: "text", placeholder: "smtp.gmail.com", required: true },
       { name: "port", label: "المنفذ (Port)", type: "text", placeholder: "465", default: "465" },
       { name: "user", label: "اسم المستخدم (البريد)", type: "text", placeholder: "you@example.com", required: true },
-      { name: "password", label: "كلمة مرور التطبيق (App Password)", type: "secret", required: true, help: "في Gmail: من إعدادات الأمان ← كلمات مرور التطبيقات، مو كلمة المرور العادية" },
+      { name: "password", label: "كلمة مرور التطبيق", type: "secret", required: true, help: "في Gmail: من إعدادات الأمان ← كلمات مرور التطبيقات، مو كلمة المرور العادية" },
       { name: "fromName", label: "اسم المرسل", type: "text", placeholder: "سطر" },
       { name: "ownerEmail", label: "يوصل التنبيه إلى", type: "text", placeholder: "اتركه فاضي ويوصل لنفس البريد" },
     ],
@@ -118,11 +118,11 @@ export const INTEGRATION_DEFINITIONS = [
   {
     key: "email",
     group: "notifications",
-    name: "البريد — Resend (اختياري)",
+    name: "خدمة البريد ريسند (اختياري)",
     description: "يوصلك بريد بكل طلب جديد وكل قائمة مدرسة.",
     docs: "https://resend.com/api-keys",
     fields: [
-      { name: "apiKey", label: "مفتاح Resend", type: "secret", placeholder: "re_…", required: true },
+      { name: "apiKey", label: "مفتاح ريسند (API Key)", type: "secret", placeholder: "re_…", required: true },
       { name: "from", label: "المرسل", type: "text", placeholder: "سطر <orders@satr.sa>", help: "لازم يكون من دومين موثّق في Resend", required: true },
       { name: "ownerEmail", label: "بريدك (المستلم)", type: "text", placeholder: "you@example.com", required: true },
     ],
@@ -142,12 +142,12 @@ export const INTEGRATION_DEFINITIONS = [
     name: "التحليلات وبكسلات الإعلانات",
     description: "يتتبع الزيارات والإضافة للسلة وبدء الدفع والشراء، ويرسلها لـ Google وMeta وتيك توك وسناب شات. حط المعرّفات اللي تستخدمها بس.",
     fields: [
-      { name: "ga4", label: "Google Analytics 4 (Measurement ID)", type: "text", placeholder: "G-XXXXXXXXXX" },
-      { name: "gtm", label: "Google Tag Manager (Container ID)", type: "text", placeholder: "GTM-XXXXXXX" },
-      { name: "googleAds", label: "Google Ads (معرّف التحويل)", type: "text", placeholder: "AW-XXXXXXXXX/xxxxxxxx", help: "معرّف التحويل مع التسمية، يرسل حدث الشراء لإعلانات Google" },
-      { name: "metaPixel", label: "Meta Pixel (فيسبوك وانستقرام)", type: "text", placeholder: "123456789012345" },
-      { name: "tiktokPixel", label: "TikTok Pixel", type: "text", placeholder: "CXXXXXXXXXXXXXXXXX" },
-      { name: "snapPixel", label: "Snap Pixel", type: "text", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
+      { name: "ga4", label: "تحليلات قوقل (GA4)", type: "text", placeholder: "G-XXXXXXXXXX" },
+      { name: "gtm", label: "مدير وسوم قوقل (GTM)", type: "text", placeholder: "GTM-XXXXXXX" },
+      { name: "googleAds", label: "إعلانات قوقل — معرّف التحويل", type: "text", placeholder: "AW-XXXXXXXXX/xxxxxxxx", help: "معرّف التحويل مع التسمية، يرسل حدث الشراء لإعلانات Google" },
+      { name: "metaPixel", label: "بكسل ميتا (فيسبوك وانستقرام)", type: "text", placeholder: "123456789012345" },
+      { name: "tiktokPixel", label: "بكسل تيك توك", type: "text", placeholder: "CXXXXXXXXXXXXXXXXX" },
+      { name: "snapPixel", label: "بكسل سناب شات", type: "text", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" },
     ],
   },
   {
@@ -160,7 +160,7 @@ export const INTEGRATION_DEFINITIONS = [
   {
     key: "webhook",
     group: "automation",
-    name: "Webhook (أتمتة)",
+    name: "الربط التلقائي (Webhook)",
     description: "نرسل كل حدث لرابط تختاره: طلب جديد، تغيّر حالة، دفع، قائمة مدرسة. اربطه مع Zapier أو Make أو n8n أو Google Sheets.",
     fields: [
       { name: "url", label: "الرابط", type: "text", placeholder: "https://hooks.zapier.com/…", required: true },

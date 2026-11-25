@@ -28,7 +28,7 @@ function previewIntegrations() {
   });
 }
 
-const PRODUCTS_KEY = "satr-preview-products-v2";
+const PRODUCTS_KEY = "satr-preview-products-v3";
 
 const ORDERS_KEY = "satr-preview-orders";
 
