@@ -20,7 +20,7 @@ import {
 } from "../components/Decor";
 import { ProductCard } from "../components/ProductCard";
 import { Puzzle } from "../components/Puzzle";
-import { PAYMENT_METHODS } from "../lib/format";
+import { paymentMethods } from "../lib/format";
 import { useStore } from "../lib/store";
 
 import mishmishVideo from "../assets/media/mishmish-polaroid.mp4";
@@ -57,6 +57,7 @@ export function HomePage() {
 
 function Hero() {
   const [c, r] = useState(false);
+  const store = useStore();
   return (
     <section className="wrap relative pt-8 lg:pt-16 grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
       <span
@@ -107,7 +108,7 @@ function Hero() {
         </div>
         <p className="mt-7 mb-0 font-bold text-[16px]">طرق دفع سهلة:</p>
         <p className="m-0 text-ink-soft text-[15px]">
-          {PAYMENT_METHODS.join("، ")}
+          {paymentMethods(store).join("، ")}
         </p>
       </div>
       <div className="relative mx-auto w-[min(86vw,440px)] aspect-square">

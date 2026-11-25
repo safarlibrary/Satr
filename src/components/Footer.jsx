@@ -1,5 +1,5 @@
 import { WavyEdge } from "./Decor";
-import { PAYMENT_METHODS } from "../lib/format";
+import { paymentMethods } from "../lib/format";
 import { useStore } from "../lib/store";
 
 const SOCIAL = [
@@ -11,7 +11,8 @@ const SOCIAL = [
 ];
 
 export function Footer() {
-  const { store } = useStore();
+  const storeState = useStore();
+  const { store } = storeState;
   const social = SOCIAL.filter(([key]) => store[key]);
   const legal = [
     store.freelanceNumber && `وثيقة العمل الحر: ${store.freelanceNumber}`,
@@ -47,7 +48,7 @@ export function Footer() {
           <div>
             <p className="font-extrabold text-[20px] m-0 mb-3">ندفع بـ</p>
             <ul className="flex flex-wrap gap-2 list-none p-0 m-0">
-              {PAYMENT_METHODS.map((c) => (
+              {paymentMethods(storeState).map((c) => (
                 <li key={c} className="chip !min-h-9 !text-[14px] !bg-card">
                   {c}
                 </li>

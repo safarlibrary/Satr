@@ -18,11 +18,8 @@ export const NAV_LINKS = [
     href: "#/track",
     label: "تتبع طلبك",
   },
-  {
-    href: "#/admin",
-    label: "لوحة التحكم",
-  },
 ];
+// لوحة التحكم ما تظهر للزوار: افتحها من #/admin
 
 function Logo() {
   return (
@@ -88,12 +85,6 @@ export function Header({ route: c }) {
           })}
         </nav>
         <div className="flex items-center gap-3">
-          <button
-            className="btn btn-butter btn-sm !min-h-[44px] !px-4 !text-[16px]"
-            lang="en"
-          >
-            English
-          </button>
           <button
             className="icon-btn !bg-mint"
             aria-label={`السلة، ${r} منتجات`}

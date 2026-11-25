@@ -4,10 +4,12 @@ export const FREE_SHIPPING_MIN = 150;
 
 export const SHIPPING_FEE = 25;
 
-export const PAYMENT_METHODS = [
-  "مدى",
-  "Apple Pay",
-  "STC Pay",
-  "تابي",
-  "الدفع عند الاستلام",
-];
+// طرق الدفع المفعّلة فعلًا (حسب التكاملات): الإلكتروني يظهر بس إذا ميسّر أو تابي شغّال
+export function paymentMethods({ onlinePayment, tabby }) {
+  return [
+    ...(onlinePayment ? ["مدى", "Apple Pay", "STC Pay"] : []),
+    ...(tabby ? ["تابي"] : []),
+    "الدفع عند الاستلام",
+  ];
+}
+
