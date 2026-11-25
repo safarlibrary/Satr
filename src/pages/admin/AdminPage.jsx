@@ -8,6 +8,9 @@ import { AdminIntegrations } from "./AdminIntegrations";
 import { AdminOverview } from "./AdminOverview";
 import { AdminSchoolLists } from "./AdminSchoolLists";
 import { AdminSettings } from "./AdminSettings";
+import { AdminStats } from "./AdminStats";
+import { AdminCustomers } from "./AdminCustomers";
+import { AdminAlerts, AdminCarts, AdminReviews } from "./AdminFollowUps";
 
 // مفتاح هذا الجهاز للوحة التحكم. التوكن نفسه ما ينحفظ، ينكتب مرة وحدة بس عند تسجيل الجهاز.
 const DEVICE_KEY = "satr-admin-device";
@@ -122,7 +125,12 @@ function AdminDashboard({ token: c, onSignOut: r }) {
       >
         {[
           ["orders", "الطلبات"],
+          ["stats", "الإحصائيات والمخزون"],
           ["products", "المنتجات"],
+          ["customers", "العملاء والرسائل"],
+          ["carts", "السلات المتروكة"],
+          ["alerts", "نبّهني إذا توفّر"],
+          ["reviews", "التقييمات"],
           ["lists", "قوائم المدارس"],
           ["integrations", "التكاملات"],
           ["settings", "الإعدادات"],
@@ -144,7 +152,12 @@ function AdminDashboard({ token: c, onSignOut: r }) {
             <AdminOrders token={c} />
           </>
         )}
+        {o === "stats" && <AdminStats token={c} />}
         {o === "products" && <AdminProducts token={c} />}
+        {o === "customers" && <AdminCustomers token={c} />}
+        {o === "carts" && <AdminCarts token={c} />}
+        {o === "alerts" && <AdminAlerts token={c} />}
+        {o === "reviews" && <AdminReviews token={c} />}
         {o === "lists" && <AdminSchoolLists token={c} />}
         {o === "integrations" && <AdminIntegrations token={c} />}
         {o === "settings" && <AdminSettings token={c} onSignOut={r} />}

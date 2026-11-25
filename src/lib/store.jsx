@@ -16,6 +16,21 @@ const sameLine = (c, r, o) => c.id === r && (c.color ?? null) === (o ?? null);
 const StoreContext = createContext(null);
 
 const CART_KEY = "satr-cart";
+const CART_ID_KEY = "satr-cart-id";
+
+// معرّف ثابت لسلة هذا المتصفح (عشان السلات المتروكة في لوحة التحكم)
+function cartIdFor() {
+  try {
+    let id = localStorage.getItem(CART_ID_KEY);
+    if (!id) {
+      id = `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(CART_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+  }
+}
 
 function loadCart() {
   try {
@@ -74,6 +89,27 @@ export function StoreProvider({ children: c }) {
       localStorage.setItem(CART_KEY, JSON.stringify(r));
     } catch {}
   }, [r]);
+  const cartId = useMemo(cartIdFor, []);
+  const contact = useRef({});
+  const syncCart = useCallback(
+    (items) => api("/api/carts", { method: "POST", json: { id: cartId, items, ...contact.current } }).catch(() => {}),
+    [cartId],
+  );
+  // نرسل السلة للسيرفر بعد ثانيتين من آخر تغيير
+  const synced = useRef(false);
+  useEffect(() => {
+    if (!synced.current && r.length === 0) return;
+    synced.current = true;
+    const t = setTimeout(() => syncCart(r.map(({ id, qty, color }) => ({ id, qty, color }))), 2000);
+    return () => clearTimeout(t);
+  }, [r, syncCart]);
+  const syncCartContact = useCallback(
+    ({ name, phone }) => {
+      contact.current = { name, phone };
+      if (r.length) syncCart(r.map(({ id, qty, color }) => ({ id, qty, color })));
+    },
+    [r, syncCart],
+  );
   const z = useMemo(() => (m.status === "ready" ? m.products : []), [m]);
   const Q = useMemo(() => (m.status === "ready" ? m.categories : []), [m]);
   const Z = useMemo(() => {
@@ -103,6 +139,9 @@ export function StoreProvider({ children: c }) {
       catalog: m,
       onlinePayment: m.status === "ready" && m.onlinePayment,
       tabby: m.status === "ready" && Boolean(m.tabby),
+      ratings: (m.status === "ready" && m.ratings) || {},
+      cartId,
+      syncCartContact,
       // بيانات المتجر من لوحة التحكم ← الإعدادات (واتساب، الحسابات، أرقام الوثائق)
       store: (m.status === "ready" && m.store) || {},
       // رسوم التوصيل وحد التوصيل المجاني — تتغيّر من لوحة التحكم ← الإعدادات
@@ -172,7 +211,7 @@ export function StoreProvider({ children: c }) {
       setPanel: y,
       returnFocus: h,
     };
-  }, [r, f, m, z, Q, E, y, h]);
+  }, [r, f, m, z, Q, E, y, h, cartId, syncCartContact]);
   return <StoreContext.Provider value={Z}>{c}</StoreContext.Provider>;
 }
 

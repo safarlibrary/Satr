@@ -10,7 +10,7 @@ export const ORDER_STATUS = {
 
 const STATUS_STEPS = ["new", "preparing", "shipped", "delivered"];
 
-const PAYMENT_STATUS = {
+export const PAYMENT_STATUS = {
   paid: "مدفوع",
   awaiting_payment: "بانتظار الدفع",
   cod: "تدفع عند الاستلام",

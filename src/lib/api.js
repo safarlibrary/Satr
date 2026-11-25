@@ -9,6 +9,15 @@ export class ApiError extends Error {
 
 const STATIC_PREVIEW = import.meta.env.VITE_STATIC_PREVIEW === "1";
 
+export const CUSTOMER_KEY = "satr-customer-token";
+export function readCustomerToken() {
+  try {
+    return localStorage.getItem(CUSTOMER_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export async function api(path, options = {}) {
   if (STATIC_PREVIEW) {
     const { staticApi } = await import("./static-api");
@@ -17,6 +26,9 @@ export async function api(path, options = {}) {
   const headers = {};
   if (options.json !== undefined) headers["Content-Type"] = "application/json";
   if (options.token) headers.Authorization = `Bearer ${options.token}`;
+  // العميل المسجّل دخوله برقم جواله
+  const customerToken = readCustomerToken();
+  if (customerToken && !path.startsWith("/api/admin")) headers["X-Customer-Token"] = customerToken;
   let response;
   try {
     response = await fetch(path, {

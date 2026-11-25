@@ -1,4 +1,4 @@
-import { Menu, ShoppingBasket } from "lucide-react";
+import { Menu, ShoppingBasket, UserRound } from "lucide-react";
 import { useRef } from "react";
 import { useStore } from "../lib/store";
 
@@ -16,7 +16,7 @@ function SecretEnglishButton() {
   return (
     <button
       type="button"
-      className="btn btn-butter btn-sm !min-h-[44px] !px-4 !text-[16px]"
+      className="btn btn-butter btn-sm !min-h-[44px] !px-2.5 sm:!px-4 !text-[13px] sm:!text-[16px]"
       lang="en"
       onClick={onClick}
     >
@@ -52,7 +52,7 @@ function Logo() {
       className="flex items-center gap-2 no-underline text-ink"
       aria-label="سطر — الرئيسية"
     >
-      <svg viewBox="0 0 40 40" className="w-10 h-10" aria-hidden="true">
+      <svg viewBox="0 0 40 40" className="w-9 h-9 sm:w-10 sm:h-10" aria-hidden="true">
         <rect
           x="4"
           y="5"
@@ -83,7 +83,7 @@ export function Header({ route: c }) {
   return (
     <header className="sticky top-0 z-50 bg-paper border-b-2 border-ink">
       <div className="wrap flex items-center justify-between h-[66px] gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             className="icon-btn lg:hidden"
             aria-label="فتح القائمة"
@@ -108,8 +108,11 @@ export function Header({ route: c }) {
             );
           })}
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <SecretEnglishButton />
+          <a href="#/account" className="icon-btn !bg-butter text-ink" aria-label="حسابي">
+            <UserRound size={22} strokeWidth={2.4} />
+          </a>
           <button
             className="icon-btn !bg-mint"
             aria-label={`السلة، ${r} منتجات`}

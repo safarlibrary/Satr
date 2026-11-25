@@ -1,4 +1,4 @@
-import { addLog, getSettings } from "./db.js";
+import { addLog, getSettings, listStockAlerts, markAlertNotified } from "./db.js";
 import { formatSar } from "./util.js";
 import { getConfig, trackingUrl } from "./integrations/index.js";
 import * as email from "./integrations/email.js";
@@ -39,7 +39,9 @@ const orderText = (order) =>
     ...order.items.map((i) => `• ${i.name}${i.color ? ` (${i.color})` : ""} × ${i.qty}`),
     "",
     `الإجمالي: ${formatSar(order.total)} — الدفع: ${PAYMENT[order.paymentProvider ?? order.paymentMethod] ?? order.paymentMethod}`,
-  ].join("\n");
+    order.note ? `\nملاحظة العميل: ${order.note}` : "",
+    order.location ? `الموقع: https://maps.google.com/?q=${order.location.lat},${order.location.lng}` : "",
+  ].filter((l) => l !== "").join("\n");
 
 const publicOrder = (order) => ({
   number: order.number,
@@ -110,4 +112,22 @@ export function schoolListCreated(list) {
   run("telegram", "school_list.created", (cfg) => telegram.send(cfg, text));
   ownerEmail("school_list.created", (send) => send({ subject: `قائمة مدرسة جديدة #${list.id}`, text }));
   run("webhook", "school_list.created", (cfg) => webhook.deliver(cfg, "school_list.created", { id: list.id, name: list.name, phone: list.phone, stage: list.stage, text: list.text, hasFile: Boolean(list.file) }));
+}
+
+// نبّهني إذا توفّر: لما يرجع منتج (أو لون) للمخزون نرسل SMS للي طلبوا التنبيه.
+// إذا الرسائل مو مفعّلة يبقون في لوحة التحكم ← نبّهني إذا توفّر، وتراسلهم بالواتساب.
+export function notifyBackInStock(before, after) {
+  const back = (color) =>
+    color
+      ? (before.colorStock?.[color] ?? 0) <= 0 && (after.colorStock?.[color] ?? 0) > 0
+      : before.stock <= 0 && after.stock > 0;
+  const alerts = listStockAlerts().filter((a) => a.productId === after.id && back(a.color || null));
+  if (!alerts.length || !getConfig("sms").active) return;
+  const link = getSettings().storeUrl ? ` ${getSettings().storeUrl.replace(/\/+$/, "")}/#/product/${encodeURIComponent(after.id)}` : "";
+  for (const alert of alerts) {
+    run("sms", "stock.back", async (cfg) => {
+      await sms.send(cfg, alert.phone, `«${after.name}»${alert.color ? ` (${alert.color})` : ""} رجع متوفر في ${getSettings().storeName}${link}`);
+      markAlertNotified(alert.id);
+    });
+  }
 }

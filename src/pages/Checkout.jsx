@@ -9,6 +9,9 @@ import { formatPrice } from "../lib/format";
 import { track } from "../lib/tracking";
 import { useStore } from "../lib/store";
 import { isSaudiMobile } from "../lib/validate";
+import { useAccount } from "../lib/account";
+import { MapPicker } from "../components/MapPicker";
+import { MAIN_CITIES, OTHER_SORTED } from "../../shared/cities";
 
 function validateAddress(c) {
   const r = {};
@@ -19,7 +22,10 @@ function validateAddress(c) {
     r.phone = "رقم الجوال لازم يبدأ بـ 05 ويكون 10 أرقام";
   }
   if (c.city.trim().length < 2) {
-    r.city = "اكتب المدينة";
+    r.city = "اختر المدينة";
+  }
+  if (c.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email.trim())) {
+    r.email = "البريد غير صحيح";
   }
   if (c.district.trim().length < 2) {
     r.district = "اكتب الحي";
@@ -39,10 +45,13 @@ export function CheckoutPage() {
     onlinePayment: g,
     tabby,
     shipping: { fee: SHIPPING_FEE, freeMin: FREE_SHIPPING_MIN },
+    cartId,
+    syncCartContact,
   } = useStore();
   const [m, b] = useState({
     name: "",
     phone: "",
+    email: "",
     city: "",
     district: "",
     address: "",
@@ -51,6 +60,20 @@ export function CheckoutPage() {
   const [h, E] = useState("cod");
   const [z, Q] = useState(false);
   const [Z, O] = useState("");
+  const [note, setNote] = useState("");
+  const [location, setLocation] = useState(null);
+  // العميل المسجّل: نعبّي اسمه وجواله وبريده تلقائيًا
+  const account = useAccount();
+  useEffect(() => {
+    if (account.status !== "ready") return;
+    const last = account.orders?.[0];
+    b((K) => ({
+      ...K,
+      name: K.name || account.customer.name || last?.customer?.name || "",
+      phone: K.phone || account.customer.phone,
+      email: K.email || account.customer.email || "",
+    }));
+  }, [account.status]);
   // حدث "بدء الدفع" للتحليلات — مرة وحدة لما تنفتح الصفحة والسلة فيها منتجات
   const ready = f.status === "ready" && c.length > 0;
   useEffect(() => {
@@ -111,6 +134,9 @@ export function CheckoutPage() {
           })),
           customer: m,
           payment: h,
+          note,
+          location,
+          cartId,
         },
       });
       o();
@@ -145,6 +171,7 @@ export function CheckoutPage() {
               autoComplete="name"
               value={m.name}
               onChange={w("name")}
+              onBlur={() => syncCartContact({ name: m.name, phone: m.phone })}
               error={S.name}
             />
             <Field
@@ -156,16 +183,70 @@ export function CheckoutPage() {
               dir="ltr"
               value={m.phone}
               onChange={w("phone")}
+              onBlur={() => syncCartContact({ name: m.name, phone: m.phone })}
               error={S.phone}
             />
             <Field
-              id="c-city"
-              label="المدينة"
-              autoComplete="address-level2"
-              value={m.city}
-              onChange={w("city")}
-              error={S.city}
+              id="c-email"
+              label="البريد (اختياري، للفاتورة)"
+              type="email"
+              autoComplete="email"
+              dir="ltr"
+              value={m.email}
+              onChange={w("email")}
+              error={S.email}
             />
+            <div>
+              <label className="label" htmlFor="c-city">
+                المدينة
+              </label>
+              <select
+                id="c-city"
+                className="field"
+                autoComplete="address-level2"
+                value={m.city}
+                onChange={(e) => {
+                  w("city")(e);
+                  setLocation(null);
+                }}
+                aria-invalid={S.city ? true : undefined}
+              >
+                <option value="">اختر المدينة</option>
+                <optgroup label="المدن الرئيسية">
+                  {MAIN_CITIES.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="كل المدن">
+                  {OTHER_SORTED.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+              {S.city && <p className="m-0 mt-1.5 text-[14px] font-bold text-[#b0354f]">{S.city}</p>}
+            </div>
+          </div>
+          {m.city && (
+            <MapPicker
+              key={m.city}
+              city={m.city}
+              value={location}
+              onPick={(pick) => {
+                setLocation({ lat: pick.lat, lng: pick.lng });
+                b((K) => ({
+                  ...K,
+                  district: pick.district || K.district,
+                  address: pick.street || K.address,
+                }));
+                y((K) => ({ ...K, district: undefined, address: undefined }));
+              }}
+            />
+          )}
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field
               id="c-district"
               label="الحي"
@@ -174,15 +255,28 @@ export function CheckoutPage() {
               onChange={w("district")}
               error={S.district}
             />
+            <Field
+              id="c-address"
+              label="الشارع ورقم المبنى"
+              autoComplete="street-address"
+              value={m.address}
+              onChange={w("address")}
+              error={S.address}
+            />
           </div>
-          <Field
-            id="c-address"
-            label="الشارع ورقم المبنى"
-            autoComplete="street-address"
-            value={m.address}
-            onChange={w("address")}
-            error={S.address}
-          />
+          <div>
+            <label className="label" htmlFor="c-note">
+              أضف ملاحظة (اختياري)
+            </label>
+            <textarea
+              id="c-note"
+              className="field min-h-24 resize-y leading-relaxed"
+              placeholder="مثلًا: تغليف هدية، أو وقت مناسب للتوصيل…"
+              maxLength={500}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
           <fieldset className="border-0 p-0 m-0 mt-2">
             <legend className="m-0 mb-3 text-[22px] font-extrabold">
               طريقة الدفع

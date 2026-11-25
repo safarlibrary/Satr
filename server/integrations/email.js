@@ -1,11 +1,11 @@
 import { request } from "./http.js";
 
 // البريد عن طريق Resend — https://resend.com
-export const send = (cfg, { to, subject, text }) =>
+export const send = (cfg, { to, subject, text, html }) =>
   request("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${cfg.apiKey}` },
-    json: { from: cfg.from, to: (to ?? cfg.ownerEmail).split(/[,،\s]+/).filter(Boolean), subject, text },
+    json: { from: cfg.from, to: (to ?? cfg.ownerEmail).split(/[,،\s]+/).filter(Boolean), subject, text, ...(html ? { html } : {}) },
   });
 
 export async function test(cfg) {

@@ -12,6 +12,7 @@ import { SchoolListPage } from "./pages/SchoolList";
 import { ShopPage } from "./pages/Shop";
 import { TrackPage } from "./pages/Track";
 import { ContactPage, ReturnsPage } from "./pages/Info";
+import { AccountPage } from "./pages/Account";
 import { AdminPage } from "./pages/admin/AdminPage";
 
 export function App() {
@@ -45,6 +46,8 @@ function Routes({ path: c, query: r }) {
     return <TrackPage />;
   } else if (c.startsWith("/order/")) {
     return <OrderPage number={decodeURIComponent(c.slice(7))} />;
+  } else if (c === "/account") {
+    return <AccountPage />;
   } else if (c === "/returns") {
     return <ReturnsPage />;
   } else if (c === "/contact") {

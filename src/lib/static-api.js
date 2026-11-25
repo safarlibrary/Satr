@@ -96,8 +96,11 @@ export function staticApi(c, r) {
       onlinePayment: false,
       shipping: { fee: PREVIEW_SHIPPING_FEE, freeMin: PREVIEW_FREE_MIN },
       store: Object.fromEntries(PUBLIC_SETTING_KEYS.map((k) => [k, previewSettings()[k]])),
+      ratings: previewRatings(),
     };
   }
+  const customerFeature = previewCustomerApi(o, g, r);
+  if (customerFeature !== undefined) return customerFeature;
   if (o === "GET" && g.startsWith("/api/products/")) {
     const S = decodeURIComponent(g.slice(14));
     return (
@@ -162,6 +165,8 @@ export function staticApi(c, r) {
       shipping: z,
       createdAt: Q.toISOString(),
       items: h,
+      note: String(S.note ?? ""),
+      location: S.location ?? null,
     };
     saveOrders([...O, C]);
     return {
@@ -430,4 +435,78 @@ function toProduct(c, r) {
     colors: f,
     image: r.image,
   };
+}
+
+// ───────── المعاينة: حساب العميل والتقييمات و«نبّهني» (تنحفظ في المتصفح بس) ─────────
+const CUSTOMERS_KEY = "satr-preview-customer";
+const REVIEWS_KEY = "satr-preview-reviews";
+
+function previewRatings() {
+  const out = {};
+  for (const r of readJson(REVIEWS_KEY, [])) {
+    const x = (out[r.productId] ??= { sum: 0, count: 0 });
+    x.sum += r.rating;
+    x.count += 1;
+  }
+  return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, { avg: Math.round((v.sum / v.count) * 10) / 10, count: v.count }]));
+}
+
+function previewCustomer() {
+  let token = null;
+  try {
+    token = localStorage.getItem("satr-customer-token");
+  } catch {}
+  return token ? readJson(CUSTOMERS_KEY, null) : null;
+}
+
+function previewCustomerApi(method, path, req) {
+  const fail = (status, message) => {
+    throw new ApiError(status, message);
+  };
+  const body = bodyOf(req);
+  if (method === "POST" && path === "/api/auth/otp") {
+    if (!/^(05\d{8})$/.test(normalizePhone(body.phone ?? ""))) fail(400, "رقم الجوال لازم يبدأ بـ 05 ويكون 10 أرقام");
+    return { sent: true, devCode: "1234" };
+  }
+  if (method === "POST" && path === "/api/auth/verify") {
+    if (String(body.code) !== "1234") fail(400, "الرمز غلط");
+    const phone = normalizePhone(body.phone);
+    const existing = readJson(CUSTOMERS_KEY, null);
+    const customer = existing?.phone === phone ? existing : { phone, name: getOrders().find((x) => x.customer.phone === phone)?.customer.name ?? "", email: "" };
+    writeJson(CUSTOMERS_KEY, customer);
+    return { token: `preview-${phone}`, customer };
+  }
+  if (method === "POST" && path === "/api/auth/logout") return { ok: true };
+  if (path === "/api/me") {
+    const customer = previewCustomer() ?? fail(401, "سجّل دخولك");
+    if (method === "PUT") {
+      const next = { ...customer, name: String(body.name ?? customer.name), email: String(body.email ?? customer.email) };
+      writeJson(CUSTOMERS_KEY, next);
+      return next;
+    }
+    const orders = getOrders().filter((x) => x.customer.phone === customer.phone).reverse();
+    return { customer, orders, reviews: readJson(REVIEWS_KEY, []).filter((x) => x.phone === customer.phone) };
+  }
+  if (method === "POST" && path === "/api/reviews") {
+    const customer = previewCustomer() ?? fail(401, "سجّل دخولك");
+    const order = getOrders().find((x) => x.number === body.orderNumber && x.customer.phone === customer.phone) ?? fail(404, "الطلب غير موجود");
+    if (order.status !== "delivered") fail(400, "تقدر تقيّم بعد ما يوصلك الطلب");
+    const rest = readJson(REVIEWS_KEY, []).filter((x) => !(x.productId === body.productId && x.orderNumber === order.number));
+    writeJson(REVIEWS_KEY, [
+      ...rest,
+      { id: Date.now(), productId: body.productId, orderNumber: order.number, phone: customer.phone, name: customer.name || order.customer.name, rating: Number(body.rating), comment: String(body.comment ?? ""), createdAt: new Date().toISOString() },
+    ]);
+    return { ok: true };
+  }
+  const reviewsMatch = /^\/api\/products\/([^/]+)\/reviews$/.exec(path);
+  if (method === "GET" && reviewsMatch) {
+    const id = decodeURIComponent(reviewsMatch[1]);
+    return readJson(REVIEWS_KEY, [])
+      .filter((x) => x.productId === id)
+      .reverse()
+      .map((x) => ({ id: x.id, name: String(x.name).split(" ")[0] || "عميل", rating: x.rating, comment: x.comment, createdAt: x.createdAt }));
+  }
+  if (method === "POST" && (path === "/api/carts" || path === "/api/stock-alerts")) return { ok: true };
+  if (path.startsWith("/api/geo/")) fail(503, "الخريطة تشتغل على السيرفر");
+  return undefined;
 }

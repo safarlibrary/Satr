@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
-import { ProductArt } from "./Art";
+import { ProductGallery } from "./ProductGallery";
+import { Stars } from "./Stars";
 import { KnitFrame } from "./KnitFrame";
 import { formatPrice } from "../lib/format";
 import { useStore } from "../lib/store";
@@ -12,7 +13,8 @@ const BADGE_COLORS = {
 };
 
 export function ProductCard({ product: c }) {
-  const { add: r } = useStore();
+  const { add: r, ratings } = useStore();
+  const rating = ratings[c.id];
   const [o, f] = useState(false);
   const g = c.stock <= 0;
   const m = () => {
@@ -37,7 +39,7 @@ export function ProductCard({ product: c }) {
           }}
           aria-label={c.name}
         >
-          <ProductArt product={c} />
+          <ProductGallery product={c} />
           {c.badge && (
             <span
               className="tag absolute top-3 right-3 max-w-[60%] !text-[13px] !whitespace-normal leading-snug text-center -rotate-3"
@@ -55,6 +57,12 @@ export function ProductCard({ product: c }) {
               {c.name}
             </a>
           </h2>
+          {rating && (
+            <p className="m-0 flex items-center gap-1.5 text-[13px] text-ink-soft">
+              <Stars value={rating.avg} size={13} />
+              {`(${rating.count.toLocaleString("ar-SA")})`}
+            </p>
+          )}
           <div className="mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1 pt-1">
             <p className="m-0 leading-tight">
               <span className="font-extrabold text-[17px] whitespace-nowrap">

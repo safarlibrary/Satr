@@ -12,6 +12,7 @@ const GROUPS = [
 
 const EVENTS = {
   "order.created": "طلب جديد",
+  "stock.back": "رجع متوفر",
   "order.confirmed": "تأكيد للعميل",
   "order.updated": "تغيّر حالة",
   "order.shipped": "شحن",

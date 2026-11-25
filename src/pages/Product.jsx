@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, RotateCcw, Truck } from "lucide-react";
-import { ProductArt } from "../components/Art";
 import { CatalogState } from "../components/CatalogState";
 import { ProductCard } from "../components/ProductCard";
 import { QtyStepper } from "../components/QtyStepper";
@@ -8,6 +7,9 @@ import { WavyFrame } from "../components/WavyFrame";
 import { formatPrice } from "../lib/format";
 import { useStore } from "../lib/store";
 import { NotFoundPage } from "./NotFound";
+import { ProductGallery } from "../components/ProductGallery";
+import { Stars } from "../components/Stars";
+import { NotifyMe, Reviews } from "../components/ProductExtras";
 import { track } from "../lib/tracking";
 
 export function ProductPage({ id: c }) {
@@ -18,6 +20,7 @@ export function ProductPage({ id: c }) {
     setPanel: g,
     catalog: m,
     shipping,
+    ratings,
   } = useStore();
   const [b, S] = useState(1);
   const [y, h] = useState();
@@ -67,15 +70,15 @@ export function ProductPage({ id: c }) {
             // صورة الغلاف تملأ اللوحة، والإطار المتموّج فوقها
             <>
               <div className="absolute inset-0">
-                <ProductArt product={E} color={Q} />
+                <ProductGallery product={E} color={Q} onColor={(w) => inStock(w) && h(w)} />
               </div>
               <WavyFrame />
             </>
           ) : (
             <>
               <WavyFrame />
-              <div className="absolute inset-[9%] rounded-[18px]">
-                <ProductArt product={E} color={Q} />
+              <div className="absolute inset-[9%] rounded-[18px] overflow-hidden">
+                <ProductGallery product={E} color={Q} onColor={(w) => inStock(w) && h(w)} />
               </div>
             </>
           )}
@@ -87,6 +90,12 @@ export function ProductPage({ id: c }) {
           <h1 className="mt-4 mb-0 text-[32px] lg:text-[44px] font-extrabold leading-tight">
             {E.name}
           </h1>
+          {ratings[E.id] && (
+            <a href="#reviews" onClick={(e) => { e.preventDefault(); document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-1 inline-flex items-center gap-2 text-ink no-underline text-[15px]">
+              <Stars value={ratings[E.id].avg} size={16} />
+              {`${ratings[E.id].avg.toLocaleString("ar-SA")} · ${ratings[E.id].count.toLocaleString("ar-SA")} تقييم`}
+            </a>
+          )}
           <p className="mt-2 mb-0 text-[26px] font-extrabold">
             {formatPrice(E.price)}
             {E.oldPrice && (
@@ -160,6 +169,9 @@ export function ProductPage({ id: c }) {
                   : "أضف للسلة"}
             </button>
           </div>
+          {(E.stock <= 0 || z.some((w) => !inStock(w))) && (
+            <NotifyMe product={E} soldOut={E.stock <= 0 ? [] : z.filter((w) => !inStock(w))} />
+          )}
           <ul className="mt-8 p-0 list-none grid gap-3 text-[15px]">
             <li className="flex items-center gap-3">
               <Truck
@@ -183,6 +195,7 @@ export function ProductPage({ id: c }) {
           </ul>
         </div>
       </div>
+      <Reviews productId={E.id} />
       {C.length > 0 && (
         <div className="mt-16">
           <h2 className="text-[26px] font-extrabold m-0 mb-5">من نفس القسم</h2>

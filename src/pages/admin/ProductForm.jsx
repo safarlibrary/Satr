@@ -69,9 +69,22 @@ export function ProductForm({
           brand: o.brand ?? "",
           madeIn: o.madeIn ?? "",
           colors: (o.colors ?? []).join("، "),
+          cost: o.cost !== undefined && o.cost !== null ? String(o.cost) : "",
+          colorStock: Object.fromEntries(Object.entries(o.colorStock ?? {}).map(([k, v]) => [k, String(v)])),
         }
-      : emptyProduct(r),
+      : { ...emptyProduct(r), cost: "", colorStock: {} },
   );
+  const [cover, setCover] = useState(false);
+  const [colorFiles, setColorFiles] = useState({});
+  const [extraFiles, setExtraFiles] = useState([]);
+  const [images, setImages] = useState(o?.images ?? []);
+  const colorList = m.colors.split(/[،,]/).map((x) => x.trim()).filter(Boolean);
+  const hasColorStock = colorList.length > 0 && colorList.some((col) => m.colorStock[col] !== undefined && m.colorStock[col] !== "");
+  const colorTotal = colorList.reduce((s, col) => s + (Number(m.colorStock[col]) || 0), 0);
+  const removeImage = async (url) => {
+    await api(`/api/admin/products/${o.id}/images/remove`, { method: "POST", json: { url }, token: c });
+    setImages((list) => list.filter((u) => u !== url));
+  };
   const [S, y] = useState("");
   const [h, E] = useState(null);
   const [z, Q] = useState(false);
@@ -108,6 +121,8 @@ export function ProductForm({
         .split(/[،,]/)
         .map((Y) => Y.trim())
         .filter(Boolean),
+      cost: m.cost === "" ? undefined : Number(m.cost),
+      ...(hasColorStock ? { colorStock: Object.fromEntries(colorList.map((col) => [col, Number(m.colorStock[col]) || 0])) } : {}),
     };
     try {
       const Y = o
@@ -121,15 +136,11 @@ export function ProductForm({
             json: w,
             token: c,
           });
-      if (h) {
-        await api(`/api/admin/products/${Y.id}/image`, {
-          method: "POST",
-          json: {
-            file: await fileToDataUrl(h),
-          },
-          token: c,
-        });
-      }
+      const upload = async (file, extra) =>
+        api(`/api/admin/products/${Y.id}/image`, { method: "POST", json: { file: await fileToDataUrl(file), cover, ...extra }, token: c });
+      if (h) await upload(h, {});
+      for (const [color, file] of Object.entries(colorFiles)) if (file && colorList.includes(color)) await upload(file, { color });
+      for (const file of extraFiles) await upload(file, { extra: true });
       f();
     } catch (Y) {
       y(Y instanceof ApiError ? Y.message : "صار خطأ، جرّب مرة ثانية.");
@@ -197,10 +208,21 @@ export function ProductForm({
           type="number"
           min={0}
           dir="ltr"
-          value={m.stock}
+          value={hasColorStock ? String(colorTotal) : m.stock}
+          disabled={hasColorStock}
           onChange={(C) => Z("stock", C.target.value)}
         />
       </div>
+      <Field
+        id="p-cost"
+        label="التكلفة (للإحصائيات، ما تظهر للعميل)"
+        type="number"
+        min={0}
+        step="0.01"
+        dir="ltr"
+        value={m.cost}
+        onChange={(C) => Z("cost", C.target.value)}
+      />
       <SelectField
         id="p-art"
         label="الرسمة"
@@ -291,6 +313,53 @@ export function ProductForm({
           </span>
         )}
       </label>
+      <label className="flex items-start gap-2 sm:col-span-2 text-[15px] cursor-pointer">
+        <input type="checkbox" className="mt-1.5 w-5 h-5" checked={cover} onChange={(e) => setCover(e.target.checked)} />
+        <span>
+          <b>الصور مصمّمة بخلفيتها</b> (مثل صور شات بخلفية لون المتجر): تملأ بطاقة المنتج كاملة. اتركها بدون صح للصور المقصوصة بدون خلفية.
+        </span>
+      </label>
+      {colorList.length > 0 && (
+        <fieldset className="sm:col-span-2 border-2 border-dashed border-ink/25 rounded-[18px] p-4 m-0 grid gap-3">
+          <legend className="label !mb-0 px-1">الكمية والصورة لكل لون</legend>
+          {colorList.map((col) => (
+            <div key={col} className="grid gap-2 sm:grid-cols-[8rem_7rem_1fr] sm:items-center">
+              <b>{col}</b>
+              <input
+                className="field !min-h-11"
+                type="number"
+                min={0}
+                dir="ltr"
+                aria-label={`كمية ${col}`}
+                placeholder="الكمية"
+                value={m.colorStock[col] ?? ""}
+                onChange={(e) => Z("colorStock", { ...m.colorStock, [col]: e.target.value })}
+              />
+              <input type="file" accept="image/jpeg,image/png,image/webp" aria-label={`صورة ${col}`} onChange={(e) => setColorFiles((f) => ({ ...f, [col]: e.target.files?.[0] ?? null }))} />
+            </div>
+          ))}
+          <p className="m-0 text-[14px] text-ink-soft">
+            {hasColorStock ? `المخزون الكلي يصير ${colorTotal.toLocaleString("ar-SA")} (مجموع الألوان).` : "إذا كتبت كمية لكل لون، العميل ما يقدر يطلب لون خلص، ونبلّغ اللي طلبوا «نبّهني» لما يرجع."}
+          </p>
+        </fieldset>
+      )}
+      <label className="grid gap-2 sm:col-span-2">
+        <span className="label m-0">صور إضافية (زوايا ثانية للمنتج، تتقلّب بالسحب)</span>
+        <input type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={(e) => setExtraFiles([...(e.target.files ?? [])])} />
+        {extraFiles.length > 0 && <span className="text-[14px] text-ink-soft">بتنرفع {extraFiles.length.toLocaleString("ar-SA")} صورة</span>}
+      </label>
+      {o && images.length > 0 && (
+        <div className="sm:col-span-2 flex flex-wrap gap-2">
+          {images.map((u) => (
+            <span key={u} className="relative">
+              <img src={u} alt="" className="w-20 h-20 object-cover rounded-xl border-2 border-ink" />
+              <button type="button" className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-pink border-2 border-ink text-[14px] font-bold" aria-label="احذف الصورة" onClick={() => removeImage(u)}>
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
       {S && (
         <p role="alert" className="m-0 sm:col-span-2 font-bold text-[#b0354f]">
           {S}

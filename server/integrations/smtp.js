@@ -3,7 +3,7 @@ import { getSettings } from "../db.js";
 
 // البريد عن طريق حساب بريدك (SMTP) — مثل Gmail أو Outlook أو بريد الدومين
 // Gmail: الخادم smtp.gmail.com والمنفذ 465، وكلمة مرور تطبيق من إعدادات الأمان (مو كلمة المرور العادية)
-export function send(cfg, { to, subject, text }) {
+export function send(cfg, { to, subject, text, html }) {
   const port = Number(cfg.port) || 465;
   const transport = nodemailer.createTransport({
     host: cfg.host,
@@ -15,7 +15,7 @@ export function send(cfg, { to, subject, text }) {
   const settings = getSettings();
   const name = cfg.fromName || settings.senderName || settings.storeName;
   const from = name ? `"${name.replace(/"/g, "")}" <${cfg.user}>` : cfg.user;
-  return transport.sendMail({ from, to: to || cfg.ownerEmail || cfg.user, subject, text });
+  return transport.sendMail({ from, to: to || cfg.ownerEmail || cfg.user, subject, text, ...(html ? { html } : {}) });
 }
 
 export async function test(cfg) {

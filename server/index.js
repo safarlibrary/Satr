@@ -4,10 +4,12 @@ import express from "express";
 import { ROOT, ENV } from "./env.js";
 import { UPLOADS_DIR } from "./db.js";
 import { getConfig } from "./integrations/index.js";
+import { HttpError } from "./util.js";
 import { adminRouter } from "./routes/admin.js";
 import { feedRouter } from "./routes/feed.js";
 import { paymentsRouter } from "./routes/payments.js";
 import { publicRouter } from "./routes/public.js";
+import { customerRouter } from "./routes/customer.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -23,6 +25,7 @@ app.use((req, res, next) => {
 app.use("/api/admin", adminRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api", publicRouter);
+app.use("/api", customerRouter);
 app.use("/api", (req, res) => res.status(404).json({ error: "المسار غير موجود" }));
 app.use("/feed", feedRouter);
 
@@ -57,7 +60,8 @@ app.use((error, req, res, next) => {
   if (error?.type === "entity.parse.failed") return res.status(400).json({ error: "بيانات غير صحيحة" });
   const status = Number(error?.status) || 500;
   if (status >= 500) console.error(error);
-  res.status(status).json({ error: status >= 500 ? "صار خطأ في السيرفر، جرّب مرة ثانية." : error.message });
+  // أخطاءنا المقصودة (HttpError) رسالتها واضحة للعميل، والباقي نخفي تفاصيله
+  res.status(status).json({ error: error instanceof HttpError || status < 500 ? error.message : "صار خطأ في السيرفر، جرّب مرة ثانية." });
 });
 
 app.listen(ENV.port, () => {

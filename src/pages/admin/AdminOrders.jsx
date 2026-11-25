@@ -3,12 +3,14 @@ import { ORDER_STATUS } from "../../components/Order";
 import { api } from "../../lib/api";
 import { formatPrice } from "../../lib/format";
 import { useAdminData } from "./useAdminData";
+import { MessageComposer } from "./AdminCustomers";
 
 export function AdminOrders({ token: c }) {
   const [r, o] = useState(0);
   const { data: f, error: g } = useAdminData("/api/admin/orders", c, r);
   const { data: carriers } = useAdminData("/api/admin/carriers", c);
   const [filter, setFilter] = useState("all");
+  const [composer, setComposer] = useState(null);
   const [m, b] = useState(null);
   const [S, y] = useState("");
   const h = async (E, z, Q) => {
@@ -79,7 +81,21 @@ export function AdminOrders({ token: c }) {
               </p>
               <p className="m-0 text-[15px] text-ink-soft">
                 {E.customer.address}
+                {E.location && (
+                  <>
+                    {" · "}
+                    <a href={`https://maps.google.com/?q=${E.location.lat},${E.location.lng}`} target="_blank" rel="noopener noreferrer" className="font-bold text-leaf">
+                      الموقع على الخريطة ↗
+                    </a>
+                  </>
+                )}
               </p>
+              {E.note && (
+                <p className="m-0 rounded-xl border-2 border-dashed border-ink/30 bg-butter/50 px-3 py-2 text-[15px]">
+                  <b>ملاحظة العميل: </b>
+                  {E.note}
+                </p>
+              )}
               <ul className="list-none p-0 m-0 text-[15px]">
                 {E.items.map((z) => (
                   <li key={z.id}>
@@ -87,6 +103,11 @@ export function AdminOrders({ token: c }) {
                     {z.color && ` (${z.color})`}
                     {" × "}
                     {z.qty}
+                    {z.remaining !== null && z.remaining !== undefined && (
+                      <span className={`mr-2 text-[13px] font-bold ${z.remaining <= 0 ? "text-[#b0354f]" : z.remaining <= 3 ? "text-[#a36a00]" : "text-leaf"}`}>
+                        {z.remaining <= 0 ? `· خلص${z.color ? ` ${z.color}` : ""}` : `· باقي ${z.remaining.toLocaleString("ar-SA")}${z.color ? ` من ${z.color}` : ""}`}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -142,7 +163,11 @@ export function AdminOrders({ token: c }) {
                 >
                   واتساب العميل
                 </a>
+                <button type="button" className="btn btn-sm btn-paper" onClick={() => setComposer(composer === E.id ? null : E.id)}>
+                  فاتورة ورسائل
+                </button>
               </div>
+              {composer === E.id && <MessageComposer token={c} order={E} />}
               <ShipmentEditor
                 order={E}
                 carriers={carriers ?? []}

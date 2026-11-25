@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { Router } from "express";
-import { categories, changeStock, publicStoreInfo, getOrderByNumber, getProduct, getSettings, insertOrder, insertSchoolList, listProducts, updateOrder, UPLOADS_DIR } from "../db.js";
+import { categories, changeStock, markCartOrdered, publicProduct, ratingSummary, upsertCustomer, publicStoreInfo, getOrderByNumber, getProduct, getSettings, insertOrder, insertSchoolList, listProducts, updateOrder, UPLOADS_DIR } from "../db.js";
 import { carriers, getConfig, publicConfig, trackingUrl } from "../integrations/index.js";
 import * as moyasar from "../integrations/moyasar.js";
 import * as tabby from "../integrations/tabby.js";
@@ -20,7 +20,8 @@ publicRouter.get("/catalog", (req, res) => {
   const config = publicConfig();
   res.json({
     categories,
-    products: listProducts(),
+    products: listProducts().map(publicProduct),
+    ratings: ratingSummary(),
     onlinePayment: config.onlinePayment,
     tabby: config.tabby,
     tracking: config.tracking,
@@ -32,7 +33,7 @@ publicRouter.get("/catalog", (req, res) => {
 publicRouter.get("/products/:id", (req, res) => {
   const product = getProduct(req.params.id);
   if (!product || !product.active) fail(404, "المنتج غير موجود");
-  res.json(product);
+  res.json(publicProduct(product));
 });
 
 function orderNumber() {
@@ -48,7 +49,9 @@ function validCustomer(c) {
   if (!c || !text(c.name, 2) || !isSaudiMobile(c.phone) || !text(c.city, 2) || !text(c.district, 2) || !text(c.address, 3)) {
     fail(400, "في حقول ناقصة في عنوان التوصيل، راجعها.");
   }
-  return { name: c.name.trim(), phone: normalizePhone(c.phone), city: c.city.trim(), district: c.district.trim(), address: c.address.trim() };
+  const email = typeof c.email === "string" ? c.email.trim().slice(0, 120) : "";
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail(400, "البريد غير صحيح");
+  return { name: c.name.trim(), phone: normalizePhone(c.phone), email, city: c.city.trim(), district: c.district.trim(), address: c.address.trim() };
 }
 
 publicRouter.post(
@@ -98,6 +101,8 @@ publicRouter.post(
       paymentProvider: payment === "cod" ? null : payment === "tabby" ? "tabby" : "moyasar",
       customer,
       items,
+      note: typeof body.note === "string" ? body.note.trim().slice(0, 500) : "",
+      location: Number.isFinite(body.location?.lat) && Number.isFinite(body.location?.lng) ? { lat: Number(body.location.lat.toFixed(6)), lng: Number(body.location.lng.toFixed(6)) } : null,
       subtotal,
       shipping,
       total: subtotal + shipping,
@@ -134,6 +139,9 @@ publicRouter.post(
       fail(502, payment === "tabby" && !/^\d{3} /.test(error.message) ? error.message : "ما قدرنا نفتح صفحة الدفع، جرّب مرة ثانية أو اختر الدفع عند الاستلام.");
     }
 
+    if (typeof body.cartId === "string") markCartOrdered(body.cartId, order.number);
+    // نحفظ العميل (اسمه وبريده) عشان يطلع في قسم العملاء
+    upsertCustomer(customer.phone, { name: customer.name, ...(customer.email ? { email: customer.email } : {}) });
     orderCreated(order);
     res.json({ number: order.number, total: order.total, paymentUrl });
   }),
