@@ -3,6 +3,7 @@ import path from "node:path";
 import express from "express";
 import { ROOT, ENV } from "./env.js";
 import { UPLOADS_DIR } from "./db.js";
+import { getConfig } from "./integrations/index.js";
 import { adminRouter } from "./routes/admin.js";
 import { feedRouter } from "./routes/feed.js";
 import { paymentsRouter } from "./routes/payments.js";
@@ -24,6 +25,13 @@ app.use("/api/payments", paymentsRouter);
 app.use("/api", publicRouter);
 app.use("/api", (req, res) => res.status(404).json({ error: "المسار غير موجود" }));
 app.use("/feed", feedRouter);
+
+// ملف تحقق Apple Pay (من التكاملات ← Apple Pay و DNS)
+app.get("/.well-known/apple-developer-merchantid-domain-association", (req, res) => {
+  const { active, values } = getConfig("applepay");
+  if (!active) return res.status(404).send("Not found");
+  res.type("text/plain").send(values.association.trim());
+});
 
 // صور المنتجات المرفوعة من لوحة التحكم (ملفات قوائم المدارس خاصة وما تنعرض هنا)
 app.use("/uploads/products", express.static(path.join(UPLOADS_DIR, "products"), { maxAge: "7d", index: false }));

@@ -60,6 +60,14 @@ db.exec(`
     enabled INTEGER NOT NULL DEFAULT 0,
     config TEXT NOT NULL DEFAULT '{}'
   );
+  CREATE TABLE IF NOT EXISTS admin_devices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token_hash TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL,
+    revoked_at TEXT
+  );
   CREATE TABLE IF NOT EXISTS integration_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     at TEXT NOT NULL,
@@ -184,7 +192,24 @@ export const DEFAULT_SETTINGS = {
   freeShippingMin: 150,
   lowStock: 5,
   supportWhatsapp: "",
+  // الهوية والتواصل — تظهر في الفوتر إذا عبّيتها
+  officialEmail: "",
+  senderName: "",
+  freelanceNumber: "",
+  businessCenterNumber: "",
+  instagram: "",
+  tiktok: "",
+  snapchat: "",
+  x: "",
+  linkedin: "",
 };
+
+// القيم اللي تنعرض للزوار (بدون أي شي داخلي)
+export function publicStoreInfo() {
+  const s = getSettings();
+  const keys = ["storeName", "supportWhatsapp", "officialEmail", "freelanceNumber", "businessCenterNumber", "instagram", "tiktok", "snapchat", "x", "linkedin"];
+  return Object.fromEntries(keys.map((k) => [k, s[k]]));
+}
 
 export function getSettings() {
   const rows = db.prepare("SELECT key, value FROM settings").all();
@@ -217,3 +242,23 @@ export function addLog(integration, event, ok, message) {
 
 export const listLogs = (limit = 50) =>
   db.prepare("SELECT * FROM integration_logs ORDER BY id DESC LIMIT ?").all(limit).map((r) => ({ ...r, ok: r.ok === 1 }));
+
+// ───────── الأجهزة المسموح لها بدخول لوحة التحكم ─────────
+const rowToDevice = (r) => r && { id: r.id, label: r.label, createdAt: r.created_at, lastSeenAt: r.last_seen_at, revokedAt: r.revoked_at ?? null };
+
+export function insertDevice(tokenHash, label) {
+  const at = now();
+  const result = db.prepare("INSERT INTO admin_devices (token_hash, label, created_at, last_seen_at) VALUES (?, ?, ?, ?)").run(tokenHash, label, at, at);
+  return Number(result.lastInsertRowid);
+}
+
+export function findDevice(tokenHash) {
+  const row = db.prepare("SELECT * FROM admin_devices WHERE token_hash = ? AND revoked_at IS NULL").get(tokenHash);
+  if (!row) return null;
+  // نحدّث "آخر دخول" مرة كل ساعة بالكثير
+  if (Date.now() - Date.parse(row.last_seen_at) > 60 * 60 * 1000) db.prepare("UPDATE admin_devices SET last_seen_at = ? WHERE id = ?").run(now(), row.id);
+  return rowToDevice(row);
+}
+
+export const listDevices = () => db.prepare("SELECT * FROM admin_devices WHERE revoked_at IS NULL ORDER BY last_seen_at DESC").all().map(rowToDevice);
+export const revokeDevice = (id) => db.prepare("UPDATE admin_devices SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL").run(now(), id);

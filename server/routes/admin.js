@@ -1,9 +1,9 @@
-import { randomInt } from "node:crypto";
+import { createHash, randomBytes, randomInt } from "node:crypto";
 import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Router } from "express";
 import {
-  categories, changeStock, getOrder, getProduct, getSchoolList, getSettings, insertProduct, listLogs, listOrders, listProducts,
+  categories, changeStock, findDevice, insertDevice, listDevices, revokeDevice, getOrder, getProduct, getSchoolList, getSettings, insertProduct, listLogs, listOrders, listProducts,
   listSchoolLists, saveSettings, setProductActive, setProductImage, updateOrder, updateProduct, UPLOADS_DIR,
 } from "../db.js";
 import { ENV } from "../env.js";
@@ -14,11 +14,39 @@ import { baseUrl, handle } from "./helpers.js";
 
 export const adminRouter = Router();
 
-// كل مسارات الإدارة تحتاج التوكن: Authorization: Bearer <ADMIN_TOKEN>
+const sha256 = (value) => createHash("sha256").update(value).digest("hex");
+
+function describeDevice(ua = "") {
+  const os = /iPhone/.test(ua) ? "iPhone" : /iPad/.test(ua) ? "iPad" : /Android/.test(ua) ? "Android" : /Mac OS X/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : /Linux/.test(ua) ? "Linux" : "جهاز";
+  const browser = /Edg\//.test(ua) ? "Edge" : /CriOS|Chrome\//.test(ua) ? "Chrome" : /FxiOS|Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "متصفح";
+  return `${os} · ${browser}`;
+}
+
+// الدخول: التوكن (ADMIN_TOKEN) يُكتب مرة وحدة على كل جهاز، وبعدها الجهاز يدخل بمفتاحه الخاص.
+// تقدر تلغي أي جهاز من الإعدادات ← الأجهزة.
+adminRouter.post("/login", rateLimit("admin-login", 10, 15 * 60 * 1000), (req, res) => {
+  const token = String(req.body?.token ?? "");
+  if (!token || !safeEqual(token, ENV.adminToken)) return res.status(401).json({ error: "التوكن غلط" });
+  const deviceToken = randomBytes(32).toString("base64url");
+  insertDevice(sha256(deviceToken), describeDevice(req.get("user-agent")));
+  res.json({ deviceToken });
+});
+
+// كل مسارات الإدارة الباقية تحتاج مفتاح جهاز مسجّل (أو ADMIN_TOKEN نفسه للسكربتات)
 adminRouter.use(rateLimit("admin", 300, 5 * 60 * 1000), (req, res, next) => {
   const token = (req.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-  if (!token || !safeEqual(token, ENV.adminToken)) return res.status(401).json({ error: "التوكن غلط" });
+  if (token && safeEqual(token, ENV.adminToken)) return next();
+  const device = token ? findDevice(sha256(token)) : null;
+  if (!device) return res.status(401).json({ error: "انتهت صلاحية الدخول من هذا الجهاز، ادخل بالتوكن من جديد" });
+  req.device = device;
   next();
+});
+
+adminRouter.get("/devices", (req, res) => res.json(listDevices().map((d) => ({ ...d, current: d.id === req.device?.id }))));
+
+adminRouter.post("/devices/:id/revoke", (req, res) => {
+  revokeDevice(Number(req.params.id));
+  res.json({ ok: true, signedOut: Number(req.params.id) === req.device?.id });
 });
 
 const STATUSES = ["new", "preparing", "shipped", "delivered", "cancelled"];
@@ -192,12 +220,26 @@ adminRouter.put("/settings", (req, res) => {
     values[key] = n;
   }
   if (body.supportWhatsapp !== undefined) values.supportWhatsapp = String(body.supportWhatsapp).replace(/[^\d+]/g, "").slice(0, 16);
+  if (body.officialEmail !== undefined) {
+    const email = String(body.officialEmail).trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail(400, "البريد الرسمي غير صحيح");
+    values.officialEmail = email;
+  }
+  for (const key of ["senderName", "freelanceNumber", "businessCenterNumber"]) {
+    if (body[key] !== undefined) values[key] = String(body[key]).trim().slice(0, 80);
+  }
+  for (const key of ["instagram", "tiktok", "snapchat", "x", "linkedin"]) {
+    if (body[key] === undefined) continue;
+    const url = String(body[key]).trim();
+    if (url && !/^https:\/\/[^\s]+$/.test(url)) fail(400, "روابط الحسابات لازم تبدأ بـ https://");
+    values[key] = url.slice(0, 200);
+  }
   res.json(saveSettings(values));
 });
 
 // ───────── التكاملات ─────────
 adminRouter.get("/integrations", (req, res) => {
-  res.json({ integrations: adminView(), logs: listLogs(40), feedUrl: `${baseUrl(req)}/feed/products.xml`, callbackUrl: `${baseUrl(req)}/api/payments/moyasar/callback` });
+  res.json({ integrations: adminView(), logs: listLogs(40), feedUrl: `${baseUrl(req)}/feed/products.xml`, callbackUrl: `${baseUrl(req)}/api/payments/moyasar/webhook` });
 });
 
 adminRouter.put("/integrations/:key", (req, res) => {

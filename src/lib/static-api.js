@@ -198,6 +198,10 @@ export function staticApi(c, r) {
       id: h,
     };
   }
+  if (o === "POST" && g === "/api/admin/login") {
+    // المعاينة بدون سيرفر: أي توكن يفتح اللوحة
+    return { deviceToken: String(bodyOf(r).token ?? "preview") };
+  }
   if (g.startsWith("/api/admin")) {
     b();
     if (o === "GET" && g === "/api/admin/status") {
@@ -332,7 +336,7 @@ export function staticApi(c, r) {
     if (o === "GET" && g === "/api/admin/carriers") {
       return ["سمسا", "أرامكس", "سبل (البريد السعودي)"];
     }
-    if (g.startsWith("/api/admin/integrations") || g.startsWith("/api/admin/settings")) {
+    if (g.startsWith("/api/admin/integrations") || g.startsWith("/api/admin/settings") || g.startsWith("/api/admin/devices")) {
       m(501, "التكاملات والإعدادات تشتغل مع السيرفر فقط. شغّل المشروع بـ npm run dev.");
     }
     m(404, "المسار غير موجود");

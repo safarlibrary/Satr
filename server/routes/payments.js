@@ -4,6 +4,7 @@ import { getConfig } from "../integrations/index.js";
 import * as moyasar from "../integrations/moyasar.js";
 import * as tabby from "../integrations/tabby.js";
 import { orderPaid } from "../notify.js";
+import { safeEqual } from "../util.js";
 import { handle } from "./helpers.js";
 
 export const paymentsRouter = Router();
@@ -37,6 +38,21 @@ paymentsRouter.post(
   handle(async (req, res) => {
     const id = req.body?.id ?? req.body?.invoice_id ?? req.body?.data?.invoice_id;
     const order = typeof id === "string" ? getOrderByPaymentRef(id) : null;
+    if (order) await verifyMoyasar(order);
+    res.json({ ok: true });
+  }),
+);
+
+// Webhook ميسّر (من لوحة ميسّر ← Webhooks): نقبله فقط مع الـ Webhook Secret المحفوظ للوضع الحالي،
+// وبعدها نتأكد من الفاتورة مع ميسّر نفسه قبل ما نعتبر الطلب مدفوع
+paymentsRouter.post(
+  "/moyasar/webhook",
+  handle(async (req, res) => {
+    const { webhookSecret } = getConfig("moyasar").values;
+    const token = req.body?.secret_token;
+    if (!webhookSecret || typeof token !== "string" || !safeEqual(token, webhookSecret)) return res.status(401).json({ error: "unauthorized" });
+    const invoiceId = req.body?.data?.invoice_id;
+    const order = typeof invoiceId === "string" ? getOrderByPaymentRef(invoiceId) : null;
     if (order) await verifyMoyasar(order);
     res.json({ ok: true });
   }),

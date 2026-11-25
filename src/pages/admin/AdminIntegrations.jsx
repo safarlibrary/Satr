@@ -33,6 +33,39 @@ export function AdminIntegrations({ token }) {
 
   return (
     <div className="grid gap-10">
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+        <section className="panel p-6 !bg-ink text-paper" aria-labelledby="status-title">
+          <h2 id="status-title" className="m-0 mb-3 text-[22px] font-extrabold text-paper">
+            حالة الربط
+          </h2>
+          <ul className="list-none p-0 m-0 divide-y divide-paper/20">
+            {data.integrations.map((i) => {
+              const s = !i.enabled ? (i.configured ? "مضبوط، غير مفعّل" : "غير مضاف") : i.ready ? "متصل" : "ناقص إعداد";
+              const tone = i.enabled && i.ready ? "text-mint" : i.enabled ? "text-butter" : "text-paper/60";
+              return (
+                <li key={i.key} className="flex items-center justify-between gap-3 py-2.5 text-[15px]">
+                  <span className="font-bold">{i.name}</span>
+                  <span className={`shrink-0 ${tone}`}>{s}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+        <section className="panel p-6 !bg-pink-deep" aria-labelledby="order-title">
+          <h2 id="order-title" className="m-0 mb-3 text-[22px] font-extrabold">
+            الترتيب الصحيح
+          </h2>
+          <ol className="m-0 ps-5 list-decimal grid gap-2 text-[16px]">
+            <li>اربط الدومين واكتب رابط الموقع في الإعدادات.</li>
+            <li>اضبط البريد: SMTP، أو وثّق الدومين في Resend وأضف سجلات DNS.</li>
+            <li>أضف مفاتيح ميسّر في وضع Test وجرّب طلب كامل.</li>
+            <li>
+              ارفع ملف Apple Pay (يُعرض على <code dir="ltr">/.well-known/</code>).
+            </li>
+            <li>اختبر، وبعدها بدّل ميسّر إلى Live.</li>
+          </ol>
+        </section>
+      </div>
       {GROUPS.map(([group, title]) => {
         const items = data.integrations.filter((i) => i.group === group);
         if (!items.length) return null;
@@ -54,7 +87,7 @@ export function AdminIntegrations({ token }) {
                     integration.key === "feed" ? (
                       <CopyLine label="رابط ملف المنتجات" value={data.feedUrl} />
                     ) : integration.key === "moyasar" ? (
-                      <CopyLine label="رابط الإشعارات (اختياري في لوحة ميسّر ← Webhooks)" value={data.callbackUrl} />
+                      <CopyLine label="رابط الـ Webhook (حطه في لوحة ميسّر ← Webhooks مع نفس الـ Webhook Secret)" value={data.callbackUrl} />
                     ) : null
                   }
                 />
@@ -174,20 +207,45 @@ function IntegrationCard({ integration, token, open, onToggle, onSaved, extra })
             تفعيل {integration.name}
           </label>
 
-          {integration.fields.map((field) => {
+          {integration.fields.map((field, index) => {
             const id = `${integration.key}-${field.name}`;
             const cleared = clear.includes(field.name);
+            const newSection = field.section && field.section !== integration.fields[index - 1]?.section;
             return (
-              <div key={field.name}>
+              <div key={field.name} className="grid gap-0">
+                {newSection && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 mt-2 pt-3 border-t-2 border-dashed border-ink/15">
+                    <h4 className="m-0 text-[17px] font-extrabold">
+                      {field.section === "live" ? "الربط للبيئة الفعلية (Live)" : "الربط للبيئة التجريبية (Test)"}
+                    </h4>
+                    <span className="tag !text-[12px]" style={{ background: values.mode === field.section ? "var(--color-mint)" : "var(--color-card)" }}>
+                      {values.mode === field.section ? "مفعّلة الآن" : "غير مفعّلة"}
+                    </span>
+                  </div>
+                )}
                 <label className="label" htmlFor={id}>
                   {field.label}
                   {field.required && <span className="text-[#b0354f]"> *</span>}
                 </label>
-                {field.type === "textarea" ? (
+                {field.type === "select" ? (
+                  <select
+                    id={id}
+                    className="field"
+                    value={values[field.name] || field.options[0][0]}
+                    onChange={(e) => setValues((v) => ({ ...v, [field.name]: e.target.value }))}
+                  >
+                    {field.options.map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                ) : field.type === "textarea" ? (
                   <textarea
                     id={id}
                     className="field min-h-36 leading-relaxed text-[15px]"
                     dir="auto"
+                    placeholder={field.placeholder ?? ""}
                     value={values[field.name]}
                     onChange={(e) => setValues((v) => ({ ...v, [field.name]: e.target.value }))}
                   />

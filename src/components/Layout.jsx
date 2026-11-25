@@ -1,4 +1,5 @@
 import { CartDrawer, MenuDrawer } from "./Drawers";
+import { WhatsAppButton } from "./WhatsAppButton";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { TopLoader } from "./TopLoader";
@@ -30,6 +31,7 @@ export function Layout({ route: c, children: r }) {
           {r}
         </main>
         <Footer />
+        <WhatsAppButton />
       </div>
       <MenuDrawer route={c} />
       <CartDrawer />

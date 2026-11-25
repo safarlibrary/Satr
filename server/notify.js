@@ -3,9 +3,16 @@ import { formatSar } from "./util.js";
 import { getConfig, trackingUrl } from "./integrations/index.js";
 import * as email from "./integrations/email.js";
 import * as sms from "./integrations/sms.js";
+import * as smtp from "./integrations/smtp.js";
 import * as telegram from "./integrations/telegram.js";
 import * as webhook from "./integrations/webhook.js";
 import * as whatsapp from "./integrations/whatsapp.js";
+
+// بريد التنبيهات: SMTP إذا مشغّل، وإلا Resend
+function ownerEmail(event, task) {
+  const [key, provider] = getConfig("smtp").active ? ["smtp", smtp] : ["email", email];
+  run(key, event, (cfg) => task((message) => provider.send(cfg, message)));
+}
 
 const STAGES = { kg: "روضة", primary: "ابتدائي", middle: "متوسط", high: "ثانوي" };
 const PAYMENT = { cod: "عند الاستلام", online: "إلكتروني (ميسّر)", tabby: "تابي" };
@@ -57,7 +64,7 @@ function storeLink(path) {
 
 export function orderCreated(order) {
   run("telegram", "order.created", (cfg) => telegram.send(cfg, orderText(order)));
-  run("email", "order.created", (cfg) => email.send(cfg, { subject: `طلب جديد ${order.number} — ${formatSar(order.total)}`, text: orderText(order) }));
+  ownerEmail("order.created", (send) => send({ subject: `طلب جديد ${order.number} — ${formatSar(order.total)}`, text: orderText(order) }));
   run("webhook", "order.created", (cfg) => webhook.deliver(cfg, "order.created", publicOrder(order)));
   // رسالة التأكيد للعميل: طلبات الدفع الإلكتروني تنتظر لين يتم الدفع
   if (order.paymentMethod === "cod") customerConfirmed(order);
@@ -74,7 +81,7 @@ function customerConfirmed(order) {
 
 export function orderPaid(order) {
   run("telegram", "payment.paid", (cfg) => telegram.send(cfg, `💳 تم دفع الطلب ${order.number} — ${formatSar(order.total)}`));
-  run("email", "payment.paid", (cfg) => email.send(cfg, { subject: `تم دفع الطلب ${order.number}`, text: orderText(order) }));
+  ownerEmail("payment.paid", (send) => send({ subject: `تم دفع الطلب ${order.number}`, text: orderText(order) }));
   run("webhook", "payment.paid", (cfg) => webhook.deliver(cfg, "payment.paid", publicOrder(order)));
   customerConfirmed(order);
 }
@@ -101,6 +108,6 @@ export function orderStatusChanged(order, previous) {
 export function schoolListCreated(list) {
   const text = [`قائمة مدرسة جديدة #${list.id} 📋`, `${list.name} — ${list.phone}`, `المرحلة: ${STAGES[list.stage] ?? list.stage}`, list.text ? `\n${list.text}` : "", list.file ? "\n(فيها ملف مرفوع، افتحه من لوحة التحكم)" : ""].join("\n");
   run("telegram", "school_list.created", (cfg) => telegram.send(cfg, text));
-  run("email", "school_list.created", (cfg) => email.send(cfg, { subject: `قائمة مدرسة جديدة #${list.id}`, text }));
+  ownerEmail("school_list.created", (send) => send({ subject: `قائمة مدرسة جديدة #${list.id}`, text }));
   run("webhook", "school_list.created", (cfg) => webhook.deliver(cfg, "school_list.created", { id: list.id, name: list.name, phone: list.phone, stage: list.stage, text: list.text, hasFile: Boolean(list.file) }));
 }

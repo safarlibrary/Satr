@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { Router } from "express";
-import { categories, changeStock, getOrderByNumber, getProduct, getSettings, insertOrder, insertSchoolList, listProducts, updateOrder, UPLOADS_DIR } from "../db.js";
+import { categories, changeStock, publicStoreInfo, getOrderByNumber, getProduct, getSettings, insertOrder, insertSchoolList, listProducts, updateOrder, UPLOADS_DIR } from "../db.js";
 import { carriers, getConfig, publicConfig, trackingUrl } from "../integrations/index.js";
 import * as moyasar from "../integrations/moyasar.js";
 import * as tabby from "../integrations/tabby.js";
@@ -25,6 +25,7 @@ publicRouter.get("/catalog", (req, res) => {
     tabby: config.tabby,
     tracking: config.tracking,
     shipping: { fee: Number(settings.shippingFee), freeMin: Number(settings.freeShippingMin) },
+    store: publicStoreInfo(),
   });
 });
 

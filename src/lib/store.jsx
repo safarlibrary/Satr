@@ -103,6 +103,8 @@ export function StoreProvider({ children: c }) {
       catalog: m,
       onlinePayment: m.status === "ready" && m.onlinePayment,
       tabby: m.status === "ready" && Boolean(m.tabby),
+      // بيانات المتجر من لوحة التحكم ← الإعدادات (واتساب، الحسابات، أرقام الوثائق)
+      store: (m.status === "ready" && m.store) || {},
       // رسوم التوصيل وحد التوصيل المجاني — تتغيّر من لوحة التحكم ← الإعدادات
       shipping: {
         fee: m.shipping?.fee ?? SHIPPING_FEE,

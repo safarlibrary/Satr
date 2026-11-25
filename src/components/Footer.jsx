@@ -1,7 +1,23 @@
 import { WavyEdge } from "./Decor";
 import { PAYMENT_METHODS } from "../lib/format";
+import { useStore } from "../lib/store";
+
+const SOCIAL = [
+  ["instagram", "إنستقرام"],
+  ["tiktok", "تيك توك"],
+  ["snapchat", "سناب شات"],
+  ["x", "إكس"],
+  ["linkedin", "لينكدإن"],
+];
 
 export function Footer() {
+  const { store } = useStore();
+  const social = SOCIAL.filter(([key]) => store[key]);
+  const legal = [
+    store.freelanceNumber && `وثيقة العمل الحر: ${store.freelanceNumber}`,
+    store.businessCenterNumber && `مركز الأعمال: ${store.businessCenterNumber}`,
+  ].filter(Boolean);
+  const hasContact = social.length > 0 || legal.length > 0 || store.officialEmail;
   return (
     <footer className="mt-20">
       <WavyEdge fill="var(--color-mint)" />
@@ -39,6 +55,25 @@ export function Footer() {
             </ul>
           </div>
         </div>
+        {hasContact && (
+          <div className="wrap pb-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px]">
+            {social.map(([key, label]) => (
+              <a key={key} href={store[key]} target="_blank" rel="noopener noreferrer" className="font-bold text-ink no-underline hover:underline">
+                {label}
+              </a>
+            ))}
+            {store.officialEmail && (
+              <a href={`mailto:${store.officialEmail}`} className="text-ink no-underline hover:underline" dir="ltr">
+                {store.officialEmail}
+              </a>
+            )}
+            {legal.map((line) => (
+              <span key={line} className="text-ink-soft">
+                {line}
+              </span>
+            ))}
+          </div>
+        )}
         <p className="wrap pb-8 my-0 text-[14px] text-ink-soft">
           {"© "}
           {new Date().getFullYear().toLocaleString("ar-SA", {

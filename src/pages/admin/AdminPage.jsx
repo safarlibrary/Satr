@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Squiggle } from "../../components/Decor";
 import { Field } from "../../components/Field";
 import { ApiError, api } from "../../lib/api";
@@ -9,29 +9,45 @@ import { AdminOverview } from "./AdminOverview";
 import { AdminSchoolLists } from "./AdminSchoolLists";
 import { AdminSettings } from "./AdminSettings";
 
-const TOKEN_KEY = "satr-admin-token";
+// مفتاح هذا الجهاز للوحة التحكم. التوكن نفسه ما ينحفظ، ينكتب مرة وحدة بس عند تسجيل الجهاز.
+const DEVICE_KEY = "satr-admin-device";
+
+const readDevice = () => {
+  try {
+    return localStorage.getItem(DEVICE_KEY);
+  } catch {
+    return null;
+  }
+};
+const writeDevice = (value) => {
+  try {
+    if (value) localStorage.setItem(DEVICE_KEY, value);
+    else localStorage.removeItem(DEVICE_KEY);
+  } catch {}
+};
 
 export function AdminPage() {
-  const [c, r] = useState(() => {
-    try {
-      return sessionStorage.getItem(TOKEN_KEY);
-    } catch {
-      return null;
-    }
-  });
+  const [c, r] = useState(readDevice);
   const [o, f] = useState(false);
   const [g, m] = useState("");
+  // إذا الجهاز انلغى من الإعدادات، نرجّعه لشاشة الدخول
+  useEffect(() => {
+    if (!c) return;
+    api("/api/admin/status", { token: c }).catch((h) => {
+      if (h instanceof ApiError && h.status === 401) {
+        writeDevice(null);
+        r(null);
+        m(h.message);
+      }
+    });
+  }, [c]);
   const b = async (y) => {
     f(true);
     m("");
     try {
-      await api("/api/admin/status", {
-        token: y,
-      });
-      try {
-        sessionStorage.setItem(TOKEN_KEY, y);
-      } catch {}
-      r(y);
+      const { deviceToken } = await api("/api/admin/login", { method: "POST", json: { token: y } });
+      writeDevice(deviceToken);
+      r(deviceToken);
     } catch (h) {
       m(h instanceof ApiError ? h.message : "ما قدرنا نتحقق من التوكن");
     } finally {
@@ -39,9 +55,7 @@ export function AdminPage() {
     }
   };
   const S = () => {
-    try {
-      sessionStorage.removeItem(TOKEN_KEY);
-    } catch {}
+    writeDevice(null);
     r(null);
   };
   if (c) {
@@ -133,7 +147,7 @@ function AdminDashboard({ token: c, onSignOut: r }) {
         {o === "products" && <AdminProducts token={c} />}
         {o === "lists" && <AdminSchoolLists token={c} />}
         {o === "integrations" && <AdminIntegrations token={c} />}
-        {o === "settings" && <AdminSettings token={c} />}
+        {o === "settings" && <AdminSettings token={c} onSignOut={r} />}
       </div>
     </section>
   );

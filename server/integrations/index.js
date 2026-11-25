@@ -3,6 +3,7 @@ import { decryptSecret, encryptSecret } from "../secrets.js";
 import * as email from "./email.js";
 import * as moyasar from "./moyasar.js";
 import * as sms from "./sms.js";
+import * as smtp from "./smtp.js";
 import * as tabby from "./tabby.js";
 import * as telegram from "./telegram.js";
 import * as webhook from "./webhook.js";
@@ -22,10 +23,45 @@ export const INTEGRATIONS = [
     key: "moyasar",
     group: "payments",
     name: "ميسّر",
-    description: "الدفع الإلكتروني: مدى، Apple Pay، STC Pay، فيزا وماستركارد. العميل يدفع في صفحة ميسّر الآمنة ويرجع لطلبه.",
+    description: "الدفع الإلكتروني: مدى، Apple Pay، STC Pay، فيزا وماستركارد. العميل يدفع في صفحة ميسّر الآمنة ويرجع لطلبه. ابدأ بوضع Test وجرّب طلب، وبعدين بدّل إلى Live.",
     docs: "https://dashboard.moyasar.com",
-    fields: [{ name: "secretKey", label: "المفتاح السري (Secret key)", type: "secret", placeholder: "sk_test_… أو sk_live_…", required: true }],
+    fields: [
+      {
+        name: "mode",
+        label: "وضع التشغيل",
+        type: "select",
+        default: "test",
+        options: [
+          ["test", "Test — دفع تجريبي"],
+          ["live", "Live — دفع حقيقي"],
+        ],
+      },
+      { section: "live", name: "livePublishableKey", label: "Live Publishable Key", type: "secret", placeholder: "pk_live_…" },
+      { section: "live", name: "liveSecretKey", label: "Live Secret Key", type: "secret", placeholder: "sk_live_…" },
+      { section: "live", name: "liveWebhookSecret", label: "Live Webhook Secret", type: "secret", help: "نفس القيمة اللي تكتبها في لوحة ميسّر ← Webhooks" },
+      { section: "test", name: "testPublishableKey", label: "Test Publishable Key", type: "secret", placeholder: "pk_test_…" },
+      { section: "test", name: "testSecretKey", label: "Test Secret Key", type: "secret", placeholder: "sk_test_…" },
+      { section: "test", name: "testWebhookSecret", label: "Test Webhook Secret", type: "secret" },
+    ],
+    // الجاهزية حسب الوضع المختار: نحتاج المفتاح السري لنفس الوضع
+    isReady: (v) => Boolean(v.mode === "live" ? v.liveSecretKey : v.testSecretKey),
+    derive: (v) => ({
+      secretKey: v.mode === "live" ? v.liveSecretKey : v.testSecretKey,
+      publishableKey: v.mode === "live" ? v.livePublishableKey : v.testPublishableKey,
+      webhookSecret: v.mode === "live" ? v.liveWebhookSecret : v.testWebhookSecret,
+    }),
     test: moyasar.test,
+  },
+  {
+    key: "applepay",
+    group: "payments",
+    name: "Apple Pay و DNS",
+    description: "بعد ربط الدومين، سجّله في لوحة ميسّر ← Apple Pay، وحط محتوى ملف التحقق هنا. نعرضه تلقائيًا على /.well-known/apple-developer-merchantid-domain-association. سجلات DNS هنا للمرجع فقط، إضافتها الفعلية تكون في لوحة شركة الدومين.",
+    docs: "https://docs.moyasar.com",
+    fields: [
+      { name: "association", label: "ملف Apple Pay association", type: "textarea", placeholder: "الصق محتوى ملف apple-developer-merchantid-domain-association", required: true },
+      { name: "dnsRecords", label: "سجلات DNS (للمرجع) — SPF / DKIM / DMARC / MX", type: "textarea", placeholder: 'TXT @ "v=spf1 …"\nCNAME resend._domainkey …' },
+    ],
   },
   {
     key: "tabby",
@@ -80,9 +116,24 @@ export const INTEGRATIONS = [
     test: telegram.test,
   },
   {
+    key: "smtp",
+    group: "notifications",
+    name: "البريد — SMTP (حساب بريدك)",
+    description: "يرسل تنبيهات الطلبات من بريدك نفسه (Gmail أو Outlook أو بريد الدومين). إذا شغّلته، يُستخدم بدل Resend.",
+    fields: [
+      { name: "host", label: "SMTP Host", type: "text", placeholder: "smtp.gmail.com", required: true },
+      { name: "port", label: "المنفذ (Port)", type: "text", placeholder: "465", default: "465" },
+      { name: "user", label: "اسم المستخدم (البريد)", type: "text", placeholder: "you@example.com", required: true },
+      { name: "password", label: "كلمة مرور التطبيق (App Password)", type: "secret", required: true, help: "في Gmail: من إعدادات الأمان ← كلمات مرور التطبيقات، مو كلمة المرور العادية" },
+      { name: "fromName", label: "اسم المرسل", type: "text", placeholder: "سطر" },
+      { name: "ownerEmail", label: "يوصل التنبيه إلى", type: "text", placeholder: "اتركه فاضي ويوصل لنفس البريد" },
+    ],
+    test: smtp.test,
+  },
+  {
     key: "email",
     group: "notifications",
-    name: "البريد الإلكتروني (Resend)",
+    name: "البريد — Resend (اختياري)",
     description: "يوصلك بريد بكل طلب جديد وكل قائمة مدرسة.",
     docs: "https://resend.com/api-keys",
     fields: [
@@ -147,8 +198,10 @@ export function getConfig(key) {
     const raw = config[field.name];
     values[field.name] = field.type === "secret" ? decryptSecret(raw) : raw ?? field.default ?? "";
   }
-  const ready = def.fields.filter((f) => f.required).every((f) => String(values[f.name] ?? "").trim());
-  return { enabled, ready, active: enabled && ready, values };
+  const ready = def.isReady
+    ? def.isReady(values)
+    : def.fields.filter((f) => f.required).every((f) => String(values[f.name] ?? "").trim());
+  return { enabled, ready, active: enabled && ready, values: def.derive ? { ...values, ...def.derive(values) } : values };
 }
 
 // نفس الإعدادات بس آمنة للعرض في لوحة التحكم (المفاتيح السرية تظهر كـ "محفوظ")
@@ -158,14 +211,15 @@ export function adminView() {
     return {
       key: def.key,
       group: def.group,
+      configured: def.fields.some((f) => (f.type === "secret" ? Boolean(values[f.name]) : f.default === undefined && String(values[f.name] ?? "").trim())),
       name: def.name,
       description: def.description,
       docs: def.docs,
       testable: Boolean(def.test),
       enabled,
       ready,
-      fields: def.fields.map(({ name, label, type, placeholder, help, required }) => ({
-        name, label, type, placeholder, help, required,
+      fields: def.fields.map(({ name, label, type, placeholder, help, required, options, section }) => ({
+        name, label, type, placeholder, help, required, options, section,
         value: type === "secret" ? "" : values[name],
         saved: type === "secret" ? Boolean(values[name]) : undefined,
       })),
