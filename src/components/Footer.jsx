@@ -1,5 +1,6 @@
 import { WavyEdge } from "./Decor";
 import { paymentMethods } from "../lib/format";
+import { linkTo } from "../lib/router";
 import { useStore } from "../lib/store";
 
 const SOCIAL = [
@@ -35,6 +36,7 @@ export function Footer() {
             links={[
               ["كل المنتجات", "#/shop"],
               ["قائمة المدرسة", "#/school-list"],
+              ["أدوات الطالب المجانية", linkTo("/tools")],
             ]}
           />
           <FooterLinks

@@ -54,7 +54,7 @@ export function MenuDrawer({ route: c }) {
           </div>
           <nav className="flex flex-col gap-1 p-5">
             {NAV_LINKS.map((g) => {
-              const m = g.href === `#${c}`;
+              const m = g.active ? g.active(c) : g.href === `#${c}`;
               return (
                 <a
                   key={g.href}

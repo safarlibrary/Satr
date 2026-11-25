@@ -1,0 +1,132 @@
+/* قوالب غلاف الواجبات — الحجم الأساسي A4 = ٧٩٤×١١٢٣ بكسل. الألوان من هوية المتجر (الأخضر العشبي #3f7963). */
+.cv { position: relative; width: 794px; height: 1123px; overflow: hidden; direction: rtl; text-align: right; line-height: 1.5; color: #1d3328; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+.cv *, .cv *::before, .cv *::after { box-sizing: border-box; }
+.cv-inner { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.cv-ph { opacity: 0.38; }
+.cv-line { overflow-wrap: anywhere; }
+.cv-logo { display: block; max-width: 230px; max-height: 120px; object-fit: contain; }
+.cv-head { display: flex; flex-direction: column; }
+.cv-headtext { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cv-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; min-height: 0; }
+.cv-row { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
+.cv-deco { position: absolute; pointer-events: none; }
+
+/* ١) رسمي */
+.cv-formal { background: #fffdf8; font-family: "Amiri", "Baloo Bhaijaan 2", serif; }
+.cv-formal .cv-b1 { position: absolute; inset: 26px; border: 3px solid #3f7963; }
+.cv-formal .cv-b2 { position: absolute; inset: 40px; border: 1px solid #3f7963; }
+.cv-formal .cv-inner { padding: 92px 84px 84px; text-align: center; }
+.cv-formal .cv-head, .cv-formal .cv-headtext { align-items: center; }
+.cv-formal .cv-logo { margin-bottom: 14px; }
+.cv-formal .cv-uni { font-size: 36px; font-weight: 700; color: #1f4a3b; }
+.cv-formal .cv-college { font-size: 27px; }
+.cv-formal .cv-dept { font-size: 25px; color: #3f7963; }
+.cv-formal .cv-rule { position: relative; height: 2px; background: #3f7963; margin: 34px 14% 0; }
+.cv-formal .cv-rule::after { content: ""; position: absolute; left: 50%; top: 50%; width: 15px; height: 15px; background: #3f7963; border: 3px solid #fffdf8; transform: translate(-50%, -50%) rotate(45deg); }
+.cv-formal .cv-mid { gap: 30px; }
+.cv-formal .cv-course { font-size: 32px; font-weight: 700; }
+.cv-formal .cv-code { font-size: 23px; color: #3f7963; margin-top: -22px; }
+.cv-formal .cv-title { padding: 40px 30px; border-top: 3px solid #3f7963; border-bottom: 3px solid #3f7963; background: #e6f1ec; font-weight: 700; color: #1f4a3b; line-height: 1.45; overflow-wrap: anywhere; }
+.cv-formal .cv-info { display: grid; gap: 12px; }
+.cv-formal .cv-label { font-weight: 700; color: #3f7963; font-size: 24px; white-space: nowrap; }
+.cv-formal .cv-val { flex: 1; font-size: 25px; border-bottom: 2px dotted #8fb0a2; padding-bottom: 2px; }
+
+/* ٢) بسيط */
+.cv-simple { background: #fff; font-family: "Cairo", "Baloo Bhaijaan 2", sans-serif; }
+.cv-simple .cv-bar { position: absolute; top: 0; bottom: 0; right: 0; width: 26px; background: #3f7963; }
+.cv-simple .cv-bar2 { position: absolute; top: 0; bottom: 0; right: 44px; width: 4px; background: #cbe4da; }
+.cv-simple .cv-inner { padding: 96px 112px 84px 84px; }
+.cv-simple .cv-logo { margin-bottom: 18px; }
+.cv-simple .cv-uni { font-size: 32px; font-weight: 800; color: #1f4a3b; line-height: 1.3; }
+.cv-simple .cv-college { font-size: 23px; font-weight: 600; }
+.cv-simple .cv-dept { font-size: 21px; color: #5b6f66; }
+.cv-simple .cv-mid { gap: 22px; }
+.cv-simple .cv-course { font-size: 26px; font-weight: 600; color: #3f7963; }
+.cv-simple .cv-code { font-size: 20px; color: #5b6f66; margin-top: -16px; }
+.cv-simple .cv-title { font-weight: 800; color: #17382c; line-height: 1.35; padding-bottom: 30px; position: relative; overflow-wrap: anywhere; }
+.cv-simple .cv-title::after { content: ""; position: absolute; right: 0; bottom: 0; width: 130px; height: 9px; background: #3f7963; border-radius: 5px; }
+.cv-simple .cv-info { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 30px; }
+.cv-simple .cv-row { flex-direction: column; gap: 2px; }
+.cv-simple .cv-label { font-size: 17px; font-weight: 600; color: #3f7963; }
+.cv-simple .cv-val { font-size: 23px; font-weight: 600; }
+
+/* ٣) هندسي */
+.cv-geo { background: #fbfdfb; font-family: "Cairo", "Baloo Bhaijaan 2", sans-serif; }
+.cv-geo .g1 { position: absolute; left: -150px; top: -150px; width: 430px; height: 430px; border-radius: 50%; background: #3f7963; }
+.cv-geo .g2 { position: absolute; left: 110px; top: -96px; width: 230px; height: 230px; border-radius: 50%; background: #cbe4da; }
+.cv-geo .g3 { position: absolute; left: -130px; bottom: -130px; width: 400px; height: 400px; background: #cbe4da; transform: rotate(45deg); }
+.cv-geo .g4 { position: absolute; left: 70px; bottom: 56px; width: 120px; height: 120px; background: #3f7963; transform: rotate(45deg); }
+.cv-geo .cv-inner { padding: 100px 84px 84px; }
+.cv-geo .cv-head { align-items: flex-start; max-width: 68%; margin-top: 60px; }
+.cv-geo .cv-logo { margin-bottom: 14px; }
+.cv-geo .cv-uni { font-size: 31px; font-weight: 800; color: #1f4a3b; line-height: 1.3; }
+.cv-geo .cv-college { font-size: 22px; font-weight: 600; }
+.cv-geo .cv-dept { font-size: 20px; color: #3f7963; }
+.cv-geo .cv-mid { gap: 24px; }
+.cv-geo .cv-course { font-size: 25px; font-weight: 700; color: #3f7963; }
+.cv-geo .cv-code { font-size: 19px; margin-top: -18px; color: #5b6f66; }
+.cv-geo .cv-title { background: #e6f1ec; border: 4px solid #1f4a3b; padding: 36px 34px; box-shadow: 14px 14px 0 #3f7963; font-weight: 800; color: #17382c; line-height: 1.4; overflow-wrap: anywhere; }
+.cv-geo .cv-info { display: grid; gap: 12px; width: 62%; }
+.cv-geo .cv-label { background: #3f7963; color: #fff; padding: 1px 16px; border-radius: 999px; font-size: 18px; font-weight: 600; white-space: nowrap; }
+.cv-geo .cv-val { font-size: 22px; font-weight: 600; }
+
+/* ٤) سطر المرح (هوية المتجر) */
+.cv-play { background: #fef8ee radial-gradient(circle, #e9ddd0 2.2px, transparent 2.6px) 0 0 / 32px 32px; font-family: "Baloo Bhaijaan 2", sans-serif; color: #3b3242; }
+.cv-play .cv-inner { padding: 74px 66px 70px; gap: 26px; }
+.cv-play .cv-head { flex-direction: row; align-items: center; gap: 22px; background: #cbe4da; border: 4px solid #3b3242; border-radius: 34px; box-shadow: 9px 9px 0 #3b3242; padding: 26px 30px; }
+.cv-play .cv-logo { width: 108px; height: 108px; max-width: none; max-height: none; flex: none; border-radius: 22px; border: 3px solid #3b3242; background: #fffdf8; padding: 8px; }
+.cv-play .cv-headtext { flex: 1; }
+.cv-play .cv-uni { font-size: 31px; font-weight: 800; line-height: 1.3; }
+.cv-play .cv-college, .cv-play .cv-dept { font-size: 22px; font-weight: 600; }
+.cv-play .cv-mid { gap: 22px; }
+.cv-play .cv-course { align-self: flex-start; background: #fdecaa; border: 3px solid #3b3242; border-radius: 999px; padding: 4px 24px; font-size: 24px; font-weight: 700; box-shadow: 4px 4px 0 #3b3242; }
+.cv-play .cv-code { align-self: flex-start; font-size: 20px; font-weight: 600; color: #675e6b; margin-top: -14px; }
+.cv-play .cv-title { background: #f7c6cf; border: 4px solid #3b3242; border-radius: 40px; box-shadow: 10px 10px 0 #3b3242; padding: 52px 40px; text-align: center; transform: rotate(-1.5deg); font-weight: 800; line-height: 1.35; overflow-wrap: anywhere; }
+.cv-play .cv-info { display: flex; flex-wrap: wrap; gap: 14px; }
+.cv-play .cv-row { background: #fffdf8; border: 3px solid #3b3242; border-radius: 20px; padding: 7px 18px; gap: 10px; box-shadow: 4px 4px 0 #3b3242; }
+.cv-play .cv-label { color: #3f7963; font-weight: 700; font-size: 19px; white-space: nowrap; }
+.cv-play .cv-val { font-size: 21px; font-weight: 600; }
+
+/* ٥) كلاسيكي مزخرف */
+.cv-classic { background: #fbf6e9; font-family: "Amiri", "Baloo Bhaijaan 2", serif; }
+.cv-classic .cv-b1 { position: absolute; inset: 28px; border: 2px solid #3f7963; }
+.cv-classic .cv-b2 { position: absolute; inset: 46px; border: 6px double #3f7963; }
+.cv-classic .corner { position: absolute; width: 96px; height: 96px; }
+.cv-classic .tl { top: 32px; left: 32px; }
+.cv-classic .tr { top: 32px; right: 32px; transform: scaleX(-1); }
+.cv-classic .bl { bottom: 32px; left: 32px; transform: scaleY(-1); }
+.cv-classic .br { bottom: 32px; right: 32px; transform: scale(-1, -1); }
+.cv-classic .cv-inner { padding: 112px 104px 100px; text-align: center; }
+.cv-classic .cv-head, .cv-classic .cv-headtext { align-items: center; }
+.cv-classic .cv-logo { margin-bottom: 14px; }
+.cv-classic .cv-uni { font-size: 38px; font-weight: 700; color: #1f4a3b; }
+.cv-classic .cv-college { font-size: 28px; }
+.cv-classic .cv-dept { font-size: 25px; color: #3f7963; }
+.cv-classic .orn { display: block; width: 62%; height: 22px; margin: 26px auto 0; }
+.cv-classic .cv-mid { gap: 26px; }
+.cv-classic .cv-course { font-size: 32px; font-weight: 700; }
+.cv-classic .cv-code { font-size: 23px; color: #3f7963; margin-top: -20px; }
+.cv-classic .cv-title { font-weight: 700; color: #1f4a3b; line-height: 1.5; padding: 26px 10px; border-top: 1px solid #3f7963; border-bottom: 1px solid #3f7963; overflow-wrap: anywhere; }
+.cv-classic .cv-info { display: grid; gap: 10px; margin: 0 30px; }
+.cv-classic .cv-label { font-weight: 700; color: #3f7963; font-size: 24px; white-space: nowrap; }
+.cv-classic .cv-val { flex: 1; font-size: 25px; border-bottom: 1.5px dotted #a9b8a8; padding-bottom: 2px; }
+
+/* ٦) أخضر داكن */
+.cv-dark { background: #1f4a3b; color: #fef8ee; font-family: "Cairo", "Baloo Bhaijaan 2", sans-serif; }
+.cv-dark::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 24px); }
+.cv-dark .f1 { position: absolute; inset: 34px; border: 2px solid #cbe4da; }
+.cv-dark .sq { position: absolute; width: 20px; height: 20px; background: #cbe4da; }
+.cv-dark .s1 { top: 24px; right: 24px; } .cv-dark .s2 { top: 24px; left: 24px; } .cv-dark .s3 { bottom: 24px; right: 24px; } .cv-dark .s4 { bottom: 24px; left: 24px; }
+.cv-dark .cv-inner { padding: 92px 90px 86px; }
+.cv-dark .cv-logo { background: #fffdf8; padding: 10px 14px; border-radius: 16px; margin-bottom: 16px; }
+.cv-dark .cv-uni { font-size: 32px; font-weight: 800; color: #cbe4da; line-height: 1.3; }
+.cv-dark .cv-college { font-size: 23px; font-weight: 600; }
+.cv-dark .cv-dept { font-size: 21px; opacity: 0.85; }
+.cv-dark .cv-mid { gap: 22px; }
+.cv-dark .cv-course { font-size: 26px; font-weight: 600; color: #cbe4da; text-align: center; }
+.cv-dark .cv-code { font-size: 20px; opacity: 0.8; text-align: center; margin-top: -16px; }
+.cv-dark .cv-title { border: 4px solid #cbe4da; padding: 46px 36px; text-align: center; font-weight: 800; line-height: 1.4; background: rgba(0, 0, 0, 0.14); overflow-wrap: anywhere; }
+.cv-dark .cv-info { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 30px; border-top: 2px solid #cbe4da; padding-top: 30px; }
+.cv-dark .cv-row { flex-direction: column; gap: 0; }
+.cv-dark .cv-label { font-size: 17px; font-weight: 600; color: #cbe4da; }
+.cv-dark .cv-val { font-size: 23px; font-weight: 600; }

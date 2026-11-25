@@ -1,5 +1,6 @@
 import { Menu, ShoppingBasket, UserRound } from "lucide-react";
 import { useRef } from "react";
+import { linkTo, navigate } from "../lib/router";
 import { useStore } from "../lib/store";
 
 // زر «English»: ٥ ضغطات ورا بعض (خلال ٣ ثواني) تفتح لوحة التحكم. الضغطة الوحدة ما تسوي شي.
@@ -10,7 +11,7 @@ function SecretEnglishButton() {
     taps.current = [...taps.current.filter((t) => now - t < 3000), now];
     if (taps.current.length >= 5) {
       taps.current = [];
-      window.location.hash = "#/admin";
+      navigate("/admin");
     }
   };
   return (
@@ -37,6 +38,11 @@ export const NAV_LINKS = [
   {
     href: "#/school-list",
     label: "قائمة المدرسة",
+  },
+  {
+    href: linkTo("/tools"),
+    label: "أدوات الطالب",
+    active: (route) => route === "/tools" || route.startsWith("/tools/"),
   },
   {
     href: "#/track",
@@ -95,7 +101,7 @@ export function Header({ route: c }) {
         </div>
         <nav className="hidden lg:flex items-center gap-1" aria-label="الأقسام">
           {NAV_LINKS.map((f) => {
-            const g = f.href === `#${c}` || (f.href === "#/" && c === "/");
+            const g = f.active ? f.active(c) : f.href === `#${c}` || (f.href === "#/" && c === "/");
             return (
               <a
                 key={f.href}

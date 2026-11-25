@@ -10,14 +10,24 @@
   "scripts": {
     "dev": "NODE_ENV=development node --disable-warning=ExperimentalWarning --watch-path=server --watch-path=shared server/index.js",
     "build": "vite build",
-    "build:preview": "VITE_STATIC_PREVIEW=1 vite build --outDir dist-preview",
+    "build:preview": "VITE_STATIC_PREVIEW=1 vite build --base ./ --outDir dist-preview",
     "start": "NODE_ENV=production node --disable-warning=ExperimentalWarning server/index.js"
   },
   "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "@fontsource/amiri": "5.3.0",
+    "@fontsource/cairo": "5.3.0",
     "express": "4.21.2",
+    "fflate": "0.8.3",
+    "heic2any": "0.0.4",
+    "html-to-image": "1.11.13",
     "leaflet": "1.9.4",
     "lucide-react": "0.453.0",
     "nodemailer": "6.10.1",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.5.438",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },

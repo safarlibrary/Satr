@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Layout } from "./components/Layout";
 import { track } from "./lib/tracking";
-import { useHashRoute } from "./lib/router";
+import { Suspense, lazy } from "react";
+import { isToolsPath, useRoute } from "./lib/router";
 import { useStore } from "./lib/store";
 import { CheckoutPage } from "./pages/Checkout";
 import { HomePage } from "./pages/Home";
@@ -16,7 +17,7 @@ import { AccountPage } from "./pages/Account";
 import { AdminPage } from "./pages/admin/AdminPage";
 
 export function App() {
-  const c = useHashRoute();
+  const c = useRoute();
   const [r, o = ""] = c.split("?");
   useEffect(() => track("page_view"), [r]);
   return (
@@ -26,8 +27,18 @@ export function App() {
   );
 }
 
+const ToolsRouter = lazy(() => import("./pages/tools/ToolsRouter"));
+
 function Routes({ path: c, query: r }) {
   const { categories: o } = useStore();
+  // أدوات الطالب: تنحمّل بس لما يفتحها الطالب
+  if (isToolsPath(c)) {
+    return (
+      <Suspense fallback={<p className="lead text-center py-20 m-0">جاري التحميل…</p>}>
+        <ToolsRouter path={c} />
+      </Suspense>
+    );
+  }
   if (c === "/") {
     return <HomePage />;
   }
