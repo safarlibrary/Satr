@@ -1,5 +1,32 @@
 import { ApiError } from "./api";
 import { CATEGORIES, SEED_PRODUCTS } from "../../shared/catalog";
+import { INTEGRATION_DEFINITIONS } from "../../shared/integrations";
+import { DEFAULT_SETTINGS, PUBLIC_SETTING_KEYS } from "../../shared/settings";
+
+// المعاينة: الإعدادات والتكاملات تنحفظ في المتصفح بس، والمفاتيح السرية ما تنحفظ أبد (نحفظ إنها انكتبت فقط)
+const SETTINGS_KEY = "satr-preview-settings";
+const INTEGRATIONS_KEY = "satr-preview-integrations";
+const previewSettings = () => ({ ...DEFAULT_SETTINGS, ...readJson(SETTINGS_KEY, {}) });
+
+function previewIntegrations() {
+  const saved = readJson(INTEGRATIONS_KEY, {});
+  return INTEGRATION_DEFINITIONS.map((def) => {
+    const row = saved[def.key] ?? { enabled: false, config: {} };
+    const values = Object.fromEntries(def.fields.map((f) => [f.name, row.config[f.name] ?? (f.type === "secret" ? "" : f.default ?? "")]));
+    const ready = def.isReady ? def.isReady(values) : def.fields.filter((f) => f.required).every((f) => String(values[f.name] ?? "").trim());
+    return {
+      key: def.key, group: def.group, name: def.name, description: def.description, docs: def.docs,
+      testable: def.fields.length > 0 && !["shipping", "analytics", "applepay"].includes(def.key),
+      enabled: row.enabled, ready,
+      configured: def.fields.some((f) => (f.type === "secret" ? Boolean(values[f.name]) : f.default === undefined && String(values[f.name] ?? "").trim())),
+      fields: def.fields.map(({ name, label, type, placeholder, help, required, options, section }) => ({
+        name, label, type, placeholder, help, required, options, section,
+        value: type === "secret" ? "" : values[name],
+        saved: type === "secret" ? Boolean(values[name]) : undefined,
+      })),
+    };
+  });
+}
 
 const PRODUCTS_KEY = "satr-preview-products";
 
@@ -68,6 +95,7 @@ export function staticApi(c, r) {
       products: getProducts().filter((S) => S.active !== false),
       onlinePayment: false,
       shipping: { fee: PREVIEW_SHIPPING_FEE, freeMin: PREVIEW_FREE_MIN },
+      store: Object.fromEntries(PUBLIC_SETTING_KEYS.map((k) => [k, previewSettings()[k]])),
     };
   }
   if (o === "GET" && g.startsWith("/api/products/")) {
@@ -336,8 +364,41 @@ export function staticApi(c, r) {
     if (o === "GET" && g === "/api/admin/carriers") {
       return ["سمسا", "أرامكس", "سبل (البريد السعودي)"];
     }
-    if (g.startsWith("/api/admin/integrations") || g.startsWith("/api/admin/settings") || g.startsWith("/api/admin/devices")) {
-      m(501, "التكاملات والإعدادات تشتغل مع السيرفر فقط. شغّل المشروع بـ npm run dev.");
+    if (o === "GET" && g === "/api/admin/settings") {
+      return previewSettings();
+    }
+    if (o === "PUT" && g === "/api/admin/settings") {
+      const next = { ...previewSettings() };
+      for (const k of Object.keys(DEFAULT_SETTINGS)) if (bodyOf(r)[k] !== undefined) next[k] = typeof DEFAULT_SETTINGS[k] === "number" ? Number(bodyOf(r)[k]) : String(bodyOf(r)[k]).trim();
+      writeJson(SETTINGS_KEY, next);
+      return next;
+    }
+    if (o === "GET" && g === "/api/admin/devices") {
+      const at = new Date().toISOString();
+      return [{ id: 1, label: "هذا المتصفح (معاينة)", createdAt: at, lastSeenAt: at, current: true }];
+    }
+    if (o === "POST" && /^\/api\/admin\/devices\/\d+\/revoke$/.test(g)) {
+      return { ok: true, signedOut: true };
+    }
+    if (o === "GET" && g === "/api/admin/integrations") {
+      return { integrations: previewIntegrations(), logs: [], feedUrl: "https://satr.sa/feed/products.xml", callbackUrl: "https://satr.sa/api/payments/moyasar/webhook" };
+    }
+    const it = /^\/api\/admin\/integrations\/(\w+)(\/test)?$/.exec(g);
+    if (it) {
+      const def = INTEGRATION_DEFINITIONS.find((d) => d.key === it[1]) ?? m(404, "تكامل غير معروف");
+      if (it[2]) return { ok: false, message: "هذي معاينة بدون سيرفر، الاختبار يشتغل بعد ما ترفع الموقع على السيرفر." };
+      const saved = readJson(INTEGRATIONS_KEY, {});
+      const prev = saved[def.key]?.config ?? {};
+      const { enabled, values = {}, clear = [] } = bodyOf(r);
+      const config = { ...prev };
+      for (const f of def.fields) {
+        if (f.type === "secret") {
+          if (clear.includes(f.name)) delete config[f.name];
+          else if (String(values[f.name] ?? "").trim()) config[f.name] = "saved";
+        } else if (values[f.name] !== undefined) config[f.name] = String(values[f.name]).trim();
+      }
+      writeJson(INTEGRATIONS_KEY, { ...saved, [def.key]: { enabled: Boolean(enabled), config } });
+      return { ok: true };
     }
     m(404, "المسار غير موجود");
   }

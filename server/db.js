@@ -3,6 +3,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { CATEGORIES, SEED_PRODUCTS } from "../shared/catalog.js";
 import { ENV } from "./env.js";
+import { DEFAULT_SETTINGS, PUBLIC_SETTING_KEYS } from "../shared/settings.js";
 
 mkdirSync(ENV.dataDir, { recursive: true });
 export const UPLOADS_DIR = path.join(ENV.dataDir, "uploads");
@@ -185,30 +186,12 @@ export function insertSchoolList(list) {
 }
 
 // ───────── الإعدادات ─────────
-export const DEFAULT_SETTINGS = {
-  storeName: "سطر",
-  storeUrl: "",
-  shippingFee: 25,
-  freeShippingMin: 150,
-  lowStock: 5,
-  supportWhatsapp: "",
-  // الهوية والتواصل — تظهر في الفوتر إذا عبّيتها
-  officialEmail: "",
-  senderName: "",
-  freelanceNumber: "",
-  businessCenterNumber: "",
-  instagram: "",
-  tiktok: "",
-  snapchat: "",
-  x: "",
-  linkedin: "",
-};
+export { DEFAULT_SETTINGS };
 
 // القيم اللي تنعرض للزوار (بدون أي شي داخلي)
 export function publicStoreInfo() {
   const s = getSettings();
-  const keys = ["storeName", "supportWhatsapp", "officialEmail", "freelanceNumber", "businessCenterNumber", "instagram", "tiktok", "snapchat", "x", "linkedin"];
-  return Object.fromEntries(keys.map((k) => [k, s[k]]));
+  return Object.fromEntries(PUBLIC_SETTING_KEYS.map((k) => [k, s[k]]));
 }
 
 export function getSettings() {
