@@ -304,7 +304,20 @@ const ART = {
 
 export function ProductArt({ product: c, className: r, color }) {
   // صورة اللون المختار إن وجدت، وإلا الصورة الأساسية
-  const o = resolveProductImage((color && c.colorImages?.[color]) || c.image);
+  const name = (color && c.colorImages?.[color]) || c.image;
+  const o = resolveProductImage(name);
+  // صور الغلاف (اسمها فيه -cover) مصمّمة بخلفيتها، فتملأ البطاقة كاملة
+  if (o && /-cover\./.test(name)) {
+    return (
+      <img
+        src={o}
+        alt=""
+        loading="lazy"
+        draggable={false}
+        className="block w-full h-full object-cover rounded-[inherit]"
+      />
+    );
+  }
   if (o) {
     return (
       <img

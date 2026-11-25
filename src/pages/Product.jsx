@@ -63,10 +63,22 @@ export function ProductPage({ id: c }) {
             background: E.tint,
           }}
         >
-          <WavyFrame />
-          <div className="absolute inset-[9%]">
-            <ProductArt product={E} color={Q} />
-          </div>
+          {/-cover\./.test((Q && E.colorImages?.[Q]) || E.image || "") ? (
+            // صورة الغلاف تملأ اللوحة، والإطار المتموّج فوقها
+            <>
+              <div className="absolute inset-0">
+                <ProductArt product={E} color={Q} />
+              </div>
+              <WavyFrame />
+            </>
+          ) : (
+            <>
+              <WavyFrame />
+              <div className="absolute inset-[9%] rounded-[18px]">
+                <ProductArt product={E} color={Q} />
+              </div>
+            </>
+          )}
         </div>
         <div>
           {E.badge && (
