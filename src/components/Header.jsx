@@ -1,5 +1,29 @@
 import { Menu, ShoppingBasket } from "lucide-react";
+import { useRef } from "react";
 import { useStore } from "../lib/store";
+
+// زر «English»: ٥ ضغطات ورا بعض (خلال ٣ ثواني) تفتح لوحة التحكم. الضغطة الوحدة ما تسوي شي.
+function SecretEnglishButton() {
+  const taps = useRef([]);
+  const onClick = () => {
+    const now = Date.now();
+    taps.current = [...taps.current.filter((t) => now - t < 3000), now];
+    if (taps.current.length >= 5) {
+      taps.current = [];
+      window.location.hash = "#/admin";
+    }
+  };
+  return (
+    <button
+      type="button"
+      className="btn btn-butter btn-sm !min-h-[44px] !px-4 !text-[16px]"
+      lang="en"
+      onClick={onClick}
+    >
+      English
+    </button>
+  );
+}
 
 export const NAV_LINKS = [
   {
@@ -85,6 +109,7 @@ export function Header({ route: c }) {
           })}
         </nav>
         <div className="flex items-center gap-3">
+          <SecretEnglishButton />
           <button
             className="icon-btn !bg-mint"
             aria-label={`السلة، ${r} منتجات`}
