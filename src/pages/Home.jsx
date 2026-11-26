@@ -117,7 +117,7 @@ function Hero() {
         <div className="absolute inset-[10px] rounded-full border-2 border-dashed border-leaf/40" />
         <SleepyCatButton
           onWake={r}
-          className="absolute left-1/2 top-1/2 w-[88%] -translate-x-1/2 -translate-y-[calc(50%+38px)]"
+          className="absolute left-1/2 top-1/2 w-[88%] -translate-x-1/2 -translate-y-1/2"
         />
         <div className="absolute top-[7%] left-1/2 -translate-x-1/2 bg-card border-2 border-ink rounded-2xl px-4 py-1 text-[16px] font-bold whitespace-nowrap shadow-[3px_3px_0_var(--color-ink)]">
           <span aria-live="polite">{c ? "هلا! أنا مشمش" : "نايم… اضغطني"}</span>

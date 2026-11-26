@@ -133,7 +133,7 @@ export function SleepyCatButton({ className: c, onWake: r }) {
       <Cat
         awake={f}
         gaze={m}
-        className={`w-full translate-x-[7%] ${f ? "cat-wake" : "cat-breathe"}`}
+        className={`w-full -translate-x-[2.5%] -translate-y-[0.46%] ${f ? "cat-wake" : "cat-breathe"}`}
       />
       {!f && <Zzz />}
     </button>
