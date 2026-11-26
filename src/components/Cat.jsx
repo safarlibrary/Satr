@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-import catImage from "../assets/media/mishmish.png";
+import catImage from "../assets/media/mishmish.webp";
 
-const CAT_INK = "#3b3242";
+const CAT_INK = "#1c2040";
 
-const CAT_CHEEK = "#fcefda";
+const EYES = [
+  { x: 275, y: 651 },
+  { x: 525, y: 583 },
+];
 
 export function Cat({
   awake: c,
@@ -12,59 +15,56 @@ export function Cat({
   patrol: o = false,
   className: f,
 }) {
-  const g = r === "down" ? 2.6 : r === "up" ? -2.6 : 0;
+  const g = r === "down" ? 11 : r === "up" ? -11 : 0;
   return (
     <div
-      className={`relative aspect-[257/212] ${o ? "cat-patrol" : ""} ${f ?? ""}`}
+      className={`relative aspect-[1254/1189] ${o ? "cat-patrol" : ""} ${f ?? ""}`}
     >
       <img
         src={catImage}
         alt=""
         className="block w-full h-full"
         draggable={false}
-        style={{
-          clipPath: "polygon(0 0, 90% 0, 90% 8%, 100% 8%, 100% 100%, 0 100%)",
-        }}
       />
-      {c && (
-        <svg
-          viewBox="0 0 257 212"
-          className="absolute inset-0 w-full h-full"
-          aria-hidden="true"
-        >
-          <circle cx="42" cy="141" r="12" fill={CAT_CHEEK} />
-          <circle cx="82" cy="129" r="12" fill={CAT_CHEEK} />
-          <circle
-            cx="42"
-            cy="141"
-            r="9.5"
-            fill="#fff"
-            stroke={CAT_INK}
-            strokeWidth="2.2"
-          />
-          <circle
-            cx="82"
-            cy="129"
-            r="9.5"
-            fill="#fff"
-            stroke={CAT_INK}
-            strokeWidth="2.2"
-          />
-          <g
-            style={{
-              transform: `translateY(${g}px)`,
-              transition: "transform 260ms cubic-bezier(0.22,1,0.36,1)",
-            }}
-          >
-            <circle cx="43" cy="142" r="5.6" fill={CAT_INK} />
-            <circle cx="83" cy="130" r="5.6" fill={CAT_INK} />
-            <circle cx="45" cy="139.6" r="2.1" fill="#fff" />
-            <circle cx="85" cy="127.6" r="2.1" fill="#fff" />
-            <circle cx="40.8" cy="144" r="0.9" fill="#fff" />
-            <circle cx="80.8" cy="132" r="0.9" fill="#fff" />
-          </g>
-        </svg>
-      )}
+      <svg
+        viewBox="0 0 1254 1189"
+        className="absolute inset-0 w-full h-full"
+        aria-hidden="true"
+      >
+        {EYES.map(({ x, y }) =>
+          c ? (
+            <g key={x}>
+              <circle
+                cx={x}
+                cy={y}
+                r="62"
+                fill="#fff"
+                stroke={CAT_INK}
+                strokeWidth="12"
+              />
+              <g
+                style={{
+                  transform: `translateY(${g}px)`,
+                  transition: "transform 260ms cubic-bezier(0.22,1,0.36,1)",
+                }}
+              >
+                <circle cx={x + 10} cy={y - 4} r="41" fill={CAT_INK} />
+                <circle cx={x + 22} cy={y - 21} r="14" fill="#fff" />
+                <circle cx={x - 7} cy={y + 10} r="7" fill="#fff" />
+              </g>
+            </g>
+          ) : (
+            <path
+              key={x}
+              d={`M ${x - 52} ${y - 6} Q ${x} ${y + 44} ${x + 52} ${y - 6}`}
+              fill="none"
+              stroke={CAT_INK}
+              strokeWidth="13"
+              strokeLinecap="round"
+            />
+          ),
+        )}
+      </svg>
     </div>
   );
 }
