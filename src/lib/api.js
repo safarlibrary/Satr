@@ -40,6 +40,8 @@ export async function api(path, options = {}) {
     throw new ApiError(0, "ما قدرنا نوصل للسيرفر، تأكد من الإنترنت وجرّب مرة ثانية.");
   }
   const data = await response.json().catch(() => null);
+  // رد غير JSON (مثلًا استضافة بدون سيرفر) نعتبره خطأ بدل ما نمرره كبيانات
+  if (response.ok && data === null) throw new ApiError(502, "السيرفر غير متوفر حاليًا.");
   if (!response.ok) {
     throw new ApiError(response.status, data?.error ?? "صار خطأ، جرّب مرة ثانية.");
   }
