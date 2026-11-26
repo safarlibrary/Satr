@@ -29,8 +29,12 @@ const writeDevice = (value) => {
   } catch {}
 };
 
+// النسخة التجريبية (بدون سيرفر): ندخل لوحة التحكم على طول بدون توكن
+const DEMO = import.meta.env.VITE_STATIC_PREVIEW === "1";
+const DEMO_TOKEN = "demo-device";
+
 export function AdminPage() {
-  const [c, r] = useState(readDevice);
+  const [c, r] = useState(() => readDevice() ?? (DEMO ? DEMO_TOKEN : null));
   const [o, f] = useState(false);
   const [g, m] = useState("");
   // إذا الجهاز انلغى من الإعدادات، نرجّعه لشاشة الدخول
@@ -59,7 +63,7 @@ export function AdminPage() {
   };
   const S = () => {
     writeDevice(null);
-    r(null);
+    r(DEMO ? DEMO_TOKEN : null);
   };
   if (c) {
     return <AdminDashboard token={c} onSignOut={S} />;
