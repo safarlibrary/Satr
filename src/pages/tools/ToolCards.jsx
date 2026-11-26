@@ -6,18 +6,18 @@ const ICONS = { cv: UserRound, report: ScrollText, cover: FileText, pdf: Layers,
 // لكل أداة وردتها وزاويتها (يمين/يسار، فوق/تحت) وسرعتها، عشان كل بطاقة تكون مختلفة
 const FLOWERS = {
   pdf: { name: "hibiscus", pos: "tl", seconds: 26 },
-  cv: { name: "tulip", pos: "bl", seconds: 30, reverse: true },
-  cover: { name: "daisy", pos: "tl", seconds: 22 },
-  report: { name: "violet", pos: "bl", seconds: 28, reverse: true },
+  cv: { name: "sunflower", pos: "bl", seconds: 30, reverse: true },
+  cover: { name: "violet", pos: "tl", seconds: 22 },
+  report: { name: "daisy", pos: "bl", seconds: 28, reverse: true },
   images: { name: "sunflower", pos: "tl", seconds: 24 },
-  merge: { name: "rose", pos: "bl", seconds: 30, reverse: true },
+  merge: { name: "hibiscus", pos: "bl", seconds: 30, reverse: true },
   split: { name: "violet", pos: "tl", seconds: 22, reverse: true },
   compress: { name: "daisy", pos: "bl", seconds: 26 },
 };
 const TINT_BY_TOOL = {
   pdf: "var(--color-mint)",
-  cv: "var(--color-butter)",
-  cover: "var(--color-pink)",
+  cv: "var(--color-pink)",
+  cover: "var(--color-butter)",
   report: "var(--color-lilac)",
 };
 const TINTS = ["var(--color-pink)", "var(--color-mint)", "var(--color-butter)", "var(--color-lilac)"];
