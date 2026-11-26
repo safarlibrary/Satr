@@ -1,3 +1,5 @@
 {
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+  "buildCommand": "npm run build:preview",
+  "outputDirectory": "dist-preview",
+  "rewrites": [{ "source": "/((?!api/|assets/).*)", "destination": "/index.html" }]
 }
