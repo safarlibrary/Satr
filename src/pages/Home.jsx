@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
-  ClipboardList,
+  FileText,
   Gift,
   PackageCheck,
   ShoppingBasket,
   Truck,
 } from "lucide-react";
 import { Art } from "../components/Art";
+import { linkTo } from "../lib/router";
 import { SleepyCatButton } from "../components/Cat";
 import { CatalogState } from "../components/CatalogState";
 import {
@@ -101,9 +102,9 @@ function Hero() {
             تسوّق الآن
             <ArrowLeft size={20} strokeWidth={2.6} />
           </a>
-          <a href="#/school-list" className="btn btn-pink">
-            ارفع قائمة المدرسة
-            <ClipboardList size={20} strokeWidth={2.4} />
+          <a href={linkTo("/tools")} className="btn btn-pink">
+            أدوات الطالب المجانية
+            <FileText size={20} strokeWidth={2.4} />
           </a>
         </div>
         <p className="mt-7 mb-0 font-bold text-[16px]">طرق دفع سهلة:</p>
