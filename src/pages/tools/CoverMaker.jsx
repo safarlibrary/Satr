@@ -1,21 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { toJpeg, toPng } from "html-to-image";
-import "@fontsource/amiri/arabic-400.css";
-import "@fontsource/amiri/arabic-700.css";
-import "@fontsource/amiri/latin-400.css";
-import "@fontsource/amiri/latin-700.css";
-import "@fontsource/cairo/arabic-400.css";
-import "@fontsource/cairo/arabic-600.css";
-import "@fontsource/cairo/arabic-800.css";
-import "@fontsource/cairo/latin-400.css";
-import "@fontsource/cairo/latin-600.css";
-import "@fontsource/cairo/latin-800.css";
+import "./fonts";
 import { COVER_TOOL } from "../../../shared/tools";
 import { Field, SelectField } from "../../components/Field";
 import { ToolShell } from "./ToolShell";
 import { COVER_H, COVER_W, CoverTemplate, TEMPLATES } from "./cover/templates";
 import { formatDate, todayIso } from "./cover/date";
-import { downloadBlob, loadPdfLib } from "./pdf/engine";
+import { exportPages, frames, safeName } from "./export";
 import { ErrorNote } from "./pdf/ui";
 
 // نحفظ ما كتبه الطالب في جهازه (بدون الشعار) عشان ما يعيد كتابته كل مرة
@@ -28,32 +18,6 @@ function loadSaved() {
     if (saved && typeof saved === "object") return saved;
   } catch {}
   return null;
-}
-
-const FONT_SPECS = ['400 24px "Amiri"', '700 24px "Amiri"', '400 24px "Cairo"', '600 24px "Cairo"', '800 24px "Cairo"', '600 24px "Baloo Bhaijaan 2"', '800 24px "Baloo Bhaijaan 2"'];
-const loadFonts = () => Promise.all(FONT_SPECS.map((f) => document.fonts.load(f, "أبجد هوز 123 abc").catch(() => null)));
-const frames = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-const dataUrlBytes = (url) => {
-  const bin = atob(url.slice(url.indexOf(",") + 1));
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-};
-
-// يلتقط الغلاف كصورة بدقة طباعة (٣٠٠ نقطة للإنش تقريبًا)، وإذا ذاكرة الجهاز ما كفت ينزل للدقة الأقل
-async function capture(node, kind) {
-  const base = { width: COVER_W, height: COVER_H, backgroundColor: "#ffffff", style: { transform: "none" } };
-  await toPng(node, { ...base, pixelRatio: 1 }); // تسخين: يضمن تضمين الخطوط (مشكلة معروفة في سفاري)
-  let last;
-  for (const pixelRatio of [3.125, 2]) {
-    try {
-      return kind === "png" ? await toPng(node, { ...base, pixelRatio }) : await toJpeg(node, { ...base, pixelRatio, quality: 0.96 });
-    } catch (e) {
-      last = e;
-    }
-  }
-  throw last;
 }
 
 async function readLogo(file) {
@@ -73,8 +37,6 @@ async function readLogo(file) {
     URL.revokeObjectURL(url);
   }
 }
-
-const safeName = (s) => s.replace(/[\\/:*?"<>|]/g, "").trim().slice(0, 60);
 
 export default function CoverMaker() {
   const saved = useRef(loadSaved()).current;
@@ -118,24 +80,11 @@ export default function CoverMaker() {
     setError("");
     setBusy(kind);
     try {
-      await loadFonts();
       setMounted(true);
       await frames();
       const node = exportRef.current?.firstElementChild;
       if (!node) throw new Error("no node");
-      const base = `غلاف-${safeName(fields.title) || "الواجب"}`;
-      const url = await capture(node, kind);
-      const bytes = dataUrlBytes(url);
-      if (kind === "png") {
-        downloadBlob(new Blob([bytes], { type: "image/png" }), `${base}.png`);
-      } else {
-        const { PDFDocument } = await loadPdfLib();
-        const doc = await PDFDocument.create();
-        doc.setTitle(fields.title || "غلاف واجب");
-        const image = await doc.embedJpg(bytes);
-        doc.addPage([595.28, 841.89]).drawImage(image, { x: 0, y: 0, width: 595.28, height: 841.89 });
-        downloadBlob(new Blob([await doc.save()], { type: "application/pdf" }), `${base}.pdf`);
-      }
+      await exportPages([node], kind, `غلاف-${safeName(fields.title) || "الواجب"}`);
     } catch {
       setError("ما قدرنا نجهّز الغلاف على جهازك. جرّب مرة ثانية، أو من جهاز أقوى.");
     } finally {

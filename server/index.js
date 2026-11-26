@@ -10,6 +10,7 @@ import { feedRouter } from "./routes/feed.js";
 import { paymentsRouter } from "./routes/payments.js";
 import { publicRouter } from "./routes/public.js";
 import { customerRouter } from "./routes/customer.js";
+import { aiRouter } from "./routes/ai.js";
 import { getSettings } from "./db.js";
 import { baseUrl } from "./routes/helpers.js";
 import { ALL_TOOL_PAGES, toolMeta } from "../shared/tools.js";
@@ -29,6 +30,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api", publicRouter);
 app.use("/api", customerRouter);
+app.use("/api", aiRouter);
 app.use("/api", (req, res) => res.status(404).json({ error: "المسار غير موجود" }));
 app.use("/feed", feedRouter);
 

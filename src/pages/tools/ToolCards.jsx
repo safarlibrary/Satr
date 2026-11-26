@@ -1,7 +1,7 @@
-import { ArrowLeft, Combine, FileText, Images, Layers, Minimize2, Scissors } from "lucide-react";
+import { ArrowLeft, Combine, FileText, Images, Layers, Minimize2, Scissors, ScrollText, UserRound } from "lucide-react";
 import { linkTo } from "../../lib/router";
 
-const ICONS = { cover: FileText, pdf: Layers, images: Images, merge: Combine, split: Scissors, compress: Minimize2 };
+const ICONS = { cv: UserRound, report: ScrollText, cover: FileText, pdf: Layers, images: Images, merge: Combine, split: Scissors, compress: Minimize2 };
 const TINTS = ["var(--color-pink)", "var(--color-mint)", "var(--color-butter)", "var(--color-lilac)"];
 
 // بطاقات الأدوات (تُستخدم في صفحة /tools وصفحة أدوات PDF)

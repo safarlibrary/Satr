@@ -2,6 +2,8 @@ import { getIntegrationRow, saveIntegrationRow } from "../db.js";
 import { decryptSecret, encryptSecret } from "../secrets.js";
 import { DEFAULT_CARRIERS, INTEGRATION_DEFINITIONS } from "../../shared/integrations.js";
 import * as email from "./email.js";
+import * as gemini from "./gemini.js";
+import * as openai from "./openai.js";
 import * as moyasar from "./moyasar.js";
 import * as sms from "./sms.js";
 import * as smtp from "./smtp.js";
@@ -11,7 +13,7 @@ import * as webhook from "./webhook.js";
 import * as whatsapp from "./whatsapp.js";
 
 // اختبار كل تكامل (زر «احفظ واختبر»)
-const TESTS = { moyasar: moyasar.test, tabby: tabby.test, whatsapp: whatsapp.test, sms: sms.test, telegram: telegram.test, smtp: smtp.test, email: email.test, webhook: webhook.test };
+const TESTS = { moyasar: moyasar.test, tabby: tabby.test, whatsapp: whatsapp.test, sms: sms.test, telegram: telegram.test, smtp: smtp.test, gemini: gemini.test, openai: openai.test, email: email.test, webhook: webhook.test };
 
 export const INTEGRATIONS = INTEGRATION_DEFINITIONS.map((def) => ({ ...def, test: TESTS[def.key] }));
 

@@ -102,6 +102,51 @@ export const INTEGRATION_DEFINITIONS = [
     ],
   },
   {
+    key: "gemini",
+    group: "ai",
+    name: "جمناي (Google Gemini)",
+    description: "يشغّل أدوات الذكاء الاصطناعي للطلاب (السيرة الذاتية وتنسيق النصوص). فيه طبقة مجانية للتجربة. المفتاح يبقى في السيرفر ولا يوصل للمتصفح.",
+    docs: "https://aistudio.google.com/apikey",
+    fields: [
+      { name: "apiKey", label: "مفتاح جمناي (API Key)", type: "secret", placeholder: "AIza…", required: true },
+      { name: "model", label: "النموذج", type: "text", default: "gemini-2.5-flash", help: "اتركه كما هو إلا إذا تبي نموذج ثاني من لوحة جوجل" },
+    ],
+  },
+  {
+    key: "openai",
+    group: "ai",
+    name: "شات جي بي تي (OpenAI)",
+    description: "بديل أو إضافة لجمناي. إذا فعّلت الاثنين، تختار من الإعدادات تحت أيهم يُستخدم أول.",
+    docs: "https://platform.openai.com/api-keys",
+    fields: [
+      { name: "apiKey", label: "مفتاح OpenAI (API Key)", type: "secret", placeholder: "sk-…", required: true },
+      { name: "model", label: "النموذج", type: "text", default: "gpt-4o-mini", help: "اتركه كما هو إلا إذا تبي نموذج ثاني" },
+    ],
+  },
+  {
+    key: "aitools",
+    group: "ai",
+    name: "إعدادات أدوات الذكاء الاصطناعي",
+    description: "التحكم في الحدود عشان ما يكبّر عليك المبلغ. فعّل هذا الخيار عشان تظهر أدوات الاقتراحات للطلاب بعد ما تضيف مفتاح جمناي أو OpenAI.",
+    fields: [
+      {
+        name: "provider",
+        label: "المزوّد المفضّل",
+        type: "select",
+        default: "auto",
+        options: [
+          ["auto", "تلقائي (جمناي أول، وإذا ما اشتغل OpenAI)"],
+          ["gemini", "جمناي أول"],
+          ["openai", "شات جي بي تي أول"],
+        ],
+      },
+      { name: "dailyLimit", label: "الحد اليومي لكل جهاز", type: "text", default: "5", help: "كم طلب ذكاء اصطناعي يسمح للجهاز الواحد في اليوم" },
+      { name: "dailyTotal", label: "الحد اليومي الكلي للموقع", type: "text", default: "500", help: "سقف أمان لكل الطلاب مع بعض، لو وصله يتوقف لين اليوم الثاني" },
+      { name: "maxChars", label: "أقصى طول للنص (حرف)", type: "text", default: "6000" },
+    ],
+    isReady: () => true,
+  },
+  {
     key: "smtp",
     group: "notifications",
     name: "البريد من حسابك (SMTP)",

@@ -5,17 +5,18 @@ import { useSeo } from "../../lib/seo";
 import { SuggestedProducts } from "./SuggestedProducts";
 
 // «ملفاتك ما تطلع من جهازك» — صحيح لأن كل المعالجة تتم داخل المتصفح بدون رفع ولا تخزين
-export function PrivacyPill() {
+// الأدوات اللي فيها اقتراحات ذكاء اصطناعي (ai): النص يروح للسيرفر فقط لما الطالب يضغط زر الاقتراحات
+export function PrivacyPill({ ai = false }) {
   return (
     <span className="tag !bg-mint inline-flex items-center gap-1.5">
       <ShieldCheck size={16} aria-hidden="true" />
-      ملفاتك ما تطلع من جهازك
+      {ai ? "كتابتك تبقى في جهازك، إلا لما تطلب اقتراحات ذكية" : "ملفاتك ما تطلع من جهازك"}
     </span>
   );
 }
 
 // إطار موحّد لكل صفحة أداة: مسار الصفحة، العنوان، ملاحظة الخصوصية، وبطاقة المنتجات المقترحة
-export function ToolShell({ meta, parent, children }) {
+export function ToolShell({ meta, parent, privacy, children }) {
   useSeo(meta);
   return (
     <section className="wrap pt-8 pb-4 max-w-[980px]">
@@ -39,7 +40,7 @@ export function ToolShell({ meta, parent, children }) {
         <Squiggle />
         <p className="lead mt-2 mb-3 mx-auto max-w-[52ch]">{meta.short}</p>
         <div className="flex flex-wrap justify-center gap-2">
-          <PrivacyPill />
+          <PrivacyPill ai={privacy === "ai"} />
           <span className="tag !bg-butter">مجاني · بدون تسجيل</span>
         </div>
       </div>

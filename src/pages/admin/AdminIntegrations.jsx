@@ -5,6 +5,7 @@ import { useAdminData } from "./useAdminData";
 const GROUPS = [
   ["payments", "الدفع الإلكتروني"],
   ["notifications", "الإشعارات والرسائل"],
+  ["ai", "الذكاء الاصطناعي (السيرة الذاتية وتنسيق النصوص)"],
   ["shipping", "الشحن"],
   ["marketing", "التسويق والتحليلات"],
   ["automation", "الأتمتة"],

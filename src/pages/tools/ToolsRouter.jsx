@@ -4,6 +4,8 @@ import NotFound from "./NotFoundTool";
 // كل أداة تنحمّل لحالها، فمكتباتها (pdf-lib وpdf.js وغيرها) ما تبطّئ المتجر
 const ToolsHome = lazy(() => import("./ToolsHome"));
 const CoverMaker = lazy(() => import("./CoverMaker"));
+const CvMaker = lazy(() => import("./CvMaker"));
+const ReportMaker = lazy(() => import("./ReportMaker"));
 const PdfHub = lazy(() => import("./PdfHub"));
 const PdfImages = lazy(() => import("./PdfImages"));
 const PdfMerge = lazy(() => import("./PdfMerge"));
@@ -13,6 +15,8 @@ const PdfCompress = lazy(() => import("./PdfCompress"));
 const PAGES = {
   "/tools": ToolsHome,
   "/tools/cover": CoverMaker,
+  "/tools/cv": CvMaker,
+  "/tools/report": ReportMaker,
   "/tools/pdf": PdfHub,
   "/tools/pdf/images": PdfImages,
   "/tools/pdf/merge": PdfMerge,

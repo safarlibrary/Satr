@@ -4,9 +4,9 @@
 export const TOOLS_HOME = {
   path: "/tools",
   name: "أدوات الطالب",
-  title: "أدوات الطالب المجانية: غلاف واجبات وأدوات PDF",
+  title: "أدوات الطالب المجانية: غلاف واجبات، سيرة ذاتية، وأدوات PDF",
   description:
-    "أدوات مجانية للطلاب بدون تسجيل: صانع غلاف واجبات جامعي، تحويل الصور إلى PDF، دمج وتقسيم وضغط ملفات PDF. ملفاتك ما تطلع من جهازك.",
+    "أدوات مجانية للطلاب بدون تسجيل: صانع غلاف واجبات، سيرة ذاتية، تنسيق تقارير، وأدوات PDF (دمج وتقسيم وضغط وتحويل الصور). ملفاتك ما تطلع من جهازك.",
 };
 
 export const COVER_TOOL = {
@@ -17,6 +17,26 @@ export const COVER_TOOL = {
   title: "صانع غلاف واجبات جامعي مجانًا (PDF وPNG)",
   description:
     "صمّم غلاف واجبك الجامعي بالعربي في دقيقة: اختر قالب، اكتب بياناتك، وحمّله PDF أو صورة بجودة طباعة. مجاني وبدون تسجيل.",
+};
+
+export const CV_TOOL = {
+  slug: "cv",
+  path: "/tools/cv",
+  name: "صانع السيرة الذاتية",
+  short: "عبّي بياناتك واختر قالب، وخذ اقتراحات ذكية لتحسين الصياغة، وحمّلها PDF.",
+  title: "صانع سيرة ذاتية (CV) مجانًا بالعربي مع اقتراحات ذكية",
+  description:
+    "اصنع سيرتك الذاتية بالعربي في دقائق: اختر قالب احترافي، عبّي بياناتك، وخذ اقتراحات بالذكاء الاصطناعي لتحسين الصياغة، ثم حمّلها PDF. مجاني وبدون تسجيل.",
+};
+
+export const REPORT_TOOL = {
+  slug: "report",
+  path: "/tools/report",
+  name: "تنسيق التقارير والنصوص",
+  short: "الصق نصك واختر قالب فخم، ويتحول لتقرير مرتب بعناوين وترقيم صفحات جاهز للتحميل.",
+  title: "تنسيق تقرير أو بحث بقالب احترافي مجانًا (PDF)",
+  description:
+    "الصق نص تقريرك أو بحثك واختر قالب فخم: يقسّمه لعناوين وفقرات وصفحات A4 مرقّمة، وتحمّله PDF. مجاني وبدون تسجيل، والتقسيم الذكي اختياري.",
 };
 
 export const PDF_HUB = {
@@ -68,5 +88,12 @@ export const PDF_TOOLS = [
   },
 ];
 
-export const ALL_TOOL_PAGES = [TOOLS_HOME, COVER_TOOL, PDF_HUB, ...PDF_TOOLS];
+// أقسام صفحة /tools: كل قسم له عنوان وأدواته
+export const TOOL_GROUPS = [
+  { id: "pdf", title: "ملفات PDF", note: "دمج وتقسيم وضغط وتحويل الصور", tools: [PDF_HUB] },
+  { id: "cv", title: "السيرة الذاتية", note: "قوالب جاهزة واقتراحات ذكية", tools: [CV_TOOL] },
+  { id: "templates", title: "القوالب وتعبئة البيانات", note: "أغلفة وتقارير بتنسيق جاهز", tools: [COVER_TOOL, REPORT_TOOL] },
+];
+
+export const ALL_TOOL_PAGES = [TOOLS_HOME, COVER_TOOL, CV_TOOL, REPORT_TOOL, PDF_HUB, ...PDF_TOOLS];
 export const toolMeta = (path) => ALL_TOOL_PAGES.find((t) => t.path === path) ?? null;
